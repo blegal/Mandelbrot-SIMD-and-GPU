@@ -1,0 +1,99 @@
+#ifndef _ColorLibrary_
+#define _ColorLibrary_
+
+#include <vector>
+#include <map>
+#include <string>
+
+#include "../ColorMap.hpp"
+
+#include "../ColorGreyScale/ColorGreyScale.hpp"
+
+#include "../ColorHSV/ColorHSV.hpp"
+#include "../ColorHSVLoop/ColorHSVLoop.hpp"
+#include "../ColorHSVShifted/ColorHSVShifted.hpp"
+
+#include "../ColorLerp/ColorLerpBlueRed.hpp"
+#include "../ColorLSD/ColorLSD.hpp"
+
+#include "../ColorSmooth/ColorSmooth.hpp"
+#include "../ColorSmoothLoop/ColorSmoothLoop.hpp"
+#include "../ColorSmoothShifted/ColorSmoothShifted.hpp"
+
+#include "../ColorTest/ColorTest.hpp"
+
+class ColorLibrary {
+private:
+    std::vector<            ColorMap*> list;
+    std::map   <std::string,ColorMap*> dico;
+    std::map   <std::string,int      > indx;
+
+    int counter;
+
+public:
+
+    ColorLibrary(){
+
+
+        //
+        //
+        //
+        list.push_back( new ColorGreyScale    () );
+        list.push_back( new ColorHSV          () );
+        list.push_back( new ColorHSVLoop      () );
+        list.push_back( new ColorHSVShifted   () );
+        list.push_back( new ColorLerp         () );
+        list.push_back( new ColorLSD          () );
+        list.push_back( new ColorSmooth       () );
+        list.push_back( new ColorSmoothLoop   () );
+        list.push_back( new ColorSmoothShifted() );
+
+        //
+        //
+        //
+        for(int i=0; i<list.size(); i++){
+            dico[ list[i]->name() ] = list[i];
+            indx[ list[i]->name() ] =      i ;
+        }
+
+        counter = 0;
+
+    }
+
+    virtual ~ColorLibrary(){
+
+        for(int i=0; i<list.size(); i++)
+            delete list[i];
+
+    }
+
+    ColorMap* get(std::string name){
+        counter = indx[name];
+        return get();
+    }
+
+    ColorMap* get(int num){
+        counter = num;
+        return get();
+    }
+
+    ColorMap* get(){
+//        printf("ColorMap :: get (%d) : (%p) name = %s \n", counter, list[counter], list[counter]->name().c_str());
+        return list[counter];
+    }
+
+    void next(){
+        counter = (counter + 1) % list.size();
+        //printf("COUNTER %d / %lu\n", counter, list.size());
+        //return get();
+    }
+
+    void previous(){
+        counter = (counter + list.size() - 1) % list.size();
+        //printf("COUNTER %d / %lu\n", counter, list.size());
+        //return get();
+    }
+
+};
+
+#endif // _ColorMap_
