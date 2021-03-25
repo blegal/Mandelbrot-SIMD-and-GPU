@@ -3,6 +3,7 @@
 ********************/
 
 #include "Utils.hpp"
+#include <algorithm>
 
 
 int map(int val, int inMin, int inMax, int outMin, int outMax) {
@@ -11,7 +12,7 @@ int map(int val, int inMin, int inMax, int outMin, int outMax) {
 
 unsigned int median(std::vector<unsigned int> values) {
   unsigned int vecsize = values.size();
-  sort(values.begin(), values.end());
+  std::sort(values.begin(), values.end());
 
   unsigned int result;
   if (vecsize % 2 == 0) { // pair

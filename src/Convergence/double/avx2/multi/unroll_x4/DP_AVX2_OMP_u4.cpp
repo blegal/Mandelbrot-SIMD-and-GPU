@@ -1,5 +1,9 @@
 #include "DP_AVX2_OMP_u4.hpp"
 
+#ifdef __AVX2__
+    #include <immintrin.h>
+#endif
+
 #define DPPP_CONV_STEP 16
 
 DP_AVX2_OMP_u4::DP_AVX2_OMP_u4()  : Convergence("DP_OMP_AVX++")

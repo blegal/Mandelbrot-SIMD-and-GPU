@@ -65,9 +65,9 @@ void ColorMap::colorize(
 #endif
 
 
-    for(uint32_t y = 0; y < IMAGE_HEIGHT; y += 1 )
+    for(int32_t y = 0; y < IMAGE_HEIGHT; y += 1 )
     {
-        for(uint32_t x = 0; x < IMAGE_WIDTH; x += 1 )
+        for(int32_t x = 0; x < IMAGE_WIDTH; x += 1 )
         {
             const uint32_t value = (*ptr++);
             const sf::Color c    = getColor( value );

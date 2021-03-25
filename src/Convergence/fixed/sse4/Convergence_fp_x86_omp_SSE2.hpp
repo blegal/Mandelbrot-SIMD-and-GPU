@@ -1,10 +1,6 @@
-#ifndef _Convergence_fp_x86_omp_SSE2_
-#define _Convergence_fp_x86_omp_SSE2_
-
-#include <SFML/Graphics.hpp>
-
-#if defined(__AVX2__)
-    #include "immintrin.h"
+#if 0
+#if defined(__SSE4_1__)
+    #include <immintrin.h>
 #endif
 
 #include "../../Convergence.hpp"
@@ -132,7 +128,7 @@ public:
 #endif
 
     virtual void updateImage(const long double d_zoom, const long double d_offsetX, const long double d_offsetY, const int IMAGE_WIDTH, const int IMAGE_HEIGHT, sf::Image& image) {
-#if defined(__AVX2__)
+#if defined(__SSE4_1__)
         const __m128i V_4_SHIFTED = _mm_set1_epi32(4 << FI_32_25);
         const __m128i V_4 = _mm_set1_epi32(4);
         const __m128i V_2 = _mm_set1_epi32(2);
@@ -428,5 +424,4 @@ public:
     }
 
 };
-
 #endif

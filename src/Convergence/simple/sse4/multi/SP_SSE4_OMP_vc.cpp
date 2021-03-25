@@ -69,7 +69,7 @@ void SP_SSE4_OMP_vc::updateImage(const long double _zoom, const long double _off
                 Vec4f v_zReal = v_startReal;
                 Vec4f v_zImag = v_startImag;
 
-                for (uint32_t counter = 0; counter < max_iters; counter++) {
+                for (int32_t counter = 0; counter < max_iters; counter++) {
                     const Vec4f v_r2 = v_zReal * v_zReal;
                     const Vec4f v_i2 = v_zImag * v_zImag;
 

@@ -179,7 +179,7 @@ void ColorSetCandy::setIters(int max_iters)
 
     MAX = max_iters;
 
-    for (uint32_t i = 0; i < MAX; ++i)
+    for (int32_t i = 0; i < MAX; ++i)
     {
         const uint32_t v = values[sizeof(values) - i - 1];
         const uint32_t r = (v      & 0xF) << 4;

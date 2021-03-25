@@ -1,5 +1,9 @@
 #include "DP_AVX2_OMP_u2.hpp"
 
+#ifdef __AVX2__
+    #include <immintrin.h>
+#endif
+
 DP_AVX2_OMP_u2::DP_AVX2_OMP_u2() : Convergence("DP_OMP_AVX+")
 {
     dataFormat  = "double";

@@ -1,5 +1,11 @@
 #include "SP_AVX2_OMP.hpp"
 
+#ifdef __AVX2__
+#include <immintrin.h>
+#endif
+
+#define SPP_CONV_STEP 16
+
 SP_AVX2_OMP::SP_AVX2_OMP() : Convergence("SP_AVX2_OMP")
 {
     fractal     = "mandelbrot";
@@ -59,7 +65,7 @@ void SP_AVX2_OMP::updateImage(const long double _zoom, const long double _offset
 
             float* ptr_o = ptr + y * IMAGE_WIDTH;
 
-            for (int x = 0; x < IMAGE_WIDTH; x += SP_CONV_STEP) {
+            for (int x = 0; x < IMAGE_WIDTH; x += SPP_CONV_STEP) {
                 __m256 v_value = _mm256_setzero_ps();
                 __m256 v_zReal = v_startReal;
                 __m256 v_zImag = v_startImag;
@@ -85,7 +91,7 @@ void SP_AVX2_OMP::updateImage(const long double _zoom, const long double _offset
                 _mm256_storeu_ps(ptr_o, v_value);
                 ptr_o += (sizeof(__m256)/sizeof(float));
 
-                v_startReal = _mm256_add_ps(v_startReal, _mm256_set1_ps(f_zoom * SP_CONV_STEP));
+                v_startReal = _mm256_add_ps(v_startReal, _mm256_set1_ps(f_zoom * SPP_CONV_STEP));
             }
         }
     }

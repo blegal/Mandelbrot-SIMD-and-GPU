@@ -88,7 +88,7 @@ ConvergenceLibrary::ConvergenceLibrary()
     list.push_back( new FP_Q32_27_x86               (nullptr, 255) );
     list.push_back( new Convergence_fp_x86          (nullptr, 255) );
     list.push_back( new Convergence_fp_x86_omp      (nullptr, 255) );
-    list.push_back( new Convergence_fp_x86_omp_SSE2 (nullptr, 255) );
+//  list.push_back( new Convergence_fp_x86_omp_SSE2 (nullptr, 255) );
 
     list.push_back( new QP_x86                (nullptr, 255) );
     list.push_back( new QP_x86_OMP            (nullptr, 255) );

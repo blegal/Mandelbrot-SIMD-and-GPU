@@ -1,6 +1,6 @@
 #include "DP_SSE4.hpp"
 
-#ifdef defined(__AVX2__)
+#if __SSE4_1__
     #include "vectclass/vectorclass.h"  // library for INTEL AVX2/AVX512 procesors
 #endif
 
@@ -34,7 +34,7 @@ DP_SSE4::~DP_SSE4()
 
 void DP_SSE4::updateImage(const long double _zoom, const long double _offsetX, const long double _offsetY, const int IMAGE_WIDTH, const int IMAGE_HEIGHT, float* ptr)
 {
-#ifdef __AVX2__
+#ifdef __SSE4_1__
     const double f_zoom    = (double) _zoom;
     const double f_offsetX = (double) _offsetX;
     const double f_offsetY = (double) _offsetY;

@@ -1,6 +1,6 @@
 #include "DP_SSE4_OMP.hpp"
 
-#ifdef defined(__AVX2__)
+#if defined(__AVX2__)
     #include "vectclass/vectorclass.h"  // library for INTEL AVX2/AVX512 procesors
 #endif
 

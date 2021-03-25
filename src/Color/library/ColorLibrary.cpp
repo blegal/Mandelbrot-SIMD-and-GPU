@@ -22,7 +22,7 @@ ColorLibrary::ColorLibrary()
     //
     //
     //
-    for(int i=0; i<list.size(); i++){
+    for(uint32_t i=0; i<list.size(); i++){
         dico[ list[i]->name() ] = list[i];
         indx[ list[i]->name() ] =      i ;
     }  
@@ -31,7 +31,7 @@ ColorLibrary::ColorLibrary()
 
 ColorLibrary::~ColorLibrary()
 {
-    for(int i=0; i<list.size(); i++)
+    for(uint32_t i = 0; i < list.size(); i++)
         delete list[i];
 }
 

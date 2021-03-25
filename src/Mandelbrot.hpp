@@ -23,7 +23,7 @@ private:
 
 
 public:
-    Mandelbrot(Settings* p);
+    Mandelbrot(const int32_t Width, const int32_t Height, const int32_t iterations);
 
     ~Mandelbrot();
 
@@ -41,6 +41,8 @@ public:
     void nextConvergence();
     void previousConvergence();
 
+    void Iterations(const int32_t iterations);
+
     void listAllModules();
 
 private:
@@ -48,13 +50,14 @@ private:
     void updateImageSlice(const long double zoom, const long double offsetX, const long double offsetY, sf::Image& image, int minY, int maxY);
     ColorLibrary       library;
     ConvergenceLibrary converge;
-    Settings*          params;
+//    Settings*          params;
 
     uint32_t* iter_icount;
     float*    iter_fcount;
 
-    uint32_t f_witdh;
-    uint32_t f_height;
+    int32_t f_width;
+    int32_t f_height;
+    int32_t iters;
 
 };
 

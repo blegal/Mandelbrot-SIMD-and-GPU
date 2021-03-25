@@ -1,5 +1,10 @@
 #include "SP_AVX2_OMP_u2.hpp"
 
+#ifdef __AVX2__
+    #include <immintrin.h>
+#endif
+
+#define SPP_CONV_STEP 16
 
 SP_AVX2_OMP_u2::SP_AVX2_OMP_u2() : Convergence("SP_AVX2_OMP+")
 {

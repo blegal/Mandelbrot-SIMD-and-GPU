@@ -1,27 +1,29 @@
 #if defined(__AVX512BW__) || defined(__AVX2__)
-#include "DP_AVX512_OMP.hpp"
+#include "DP_AVX512.hpp"
 
-DP_AVX512_OMP::DP_AVX512_OMP() : Convergence("DP_AVX512_OMP")
+DP_AVX512::DP_AVX512() : Convergence("DP_AVX512")
 {
+    fractal     = "mandelbrot";
     dataFormat  = "double";
     modeSIMD    = "AVX512";
-    modeOPENMP  = "enable";
+    modeOPENMP  = "disable";
     OTHER       = "none";
 }
 
-DP_AVX512_OMP::DP_AVX512_OMP(ColorMap *_colors, int _max_iters) : Convergence("DP_AVX512_OMP")
+DP_AVX512::DP_AVX512(ColorMap *_colors, int _max_iters) : Convergence("DP_AVX512")
 {
     colors      = _colors;
     max_iters   = _max_iters;
 
+    fractal     = "mandelbrot";
     dataFormat  = "float";
     modeSIMD    = "AVX512";
-    modeOPENMP  = "enable";
+    modeOPENMP  = "disable";
     OTHER       = "none";
 
 }
 
-DP_AVX512_OMP::~DP_AVX512_OMP()
+DP_AVX512::~DP_AVX512()
 {
 
 }
@@ -29,7 +31,7 @@ DP_AVX512_OMP::~DP_AVX512_OMP()
 
 #define SP_CONV_STEP 4
 
-void DP_AVX512_OMP::updateImage(const long double _zoom, const long double _offsetX, const long double _offsetY, const int IMAGE_WIDTH, const int IMAGE_HEIGHT, float* ptr)
+void DP_AVX512::updateImage(const long double _zoom, const long double _offsetX, const long double _offsetY, const int IMAGE_WIDTH, const int IMAGE_HEIGHT, float* ptr)
 {
 #ifdef __AVX2__
     const float f_zoom    = (float) _zoom;
@@ -48,10 +50,6 @@ void DP_AVX512_OMP::updateImage(const long double _zoom, const long double _offs
                             startR + f_zoom * 12.0f, startR + f_zoom * 13.0f, startR + f_zoom * 14.0f, startR + f_zoom * 15.0f);
     const Vec16f XStep(f_zoom * startReal.size());
 
-#pragma omp parallel
-    {
-
-#pragma omp for
         for (int y = 0; y < IMAGE_HEIGHT; y++) {
 
             float* ptr_o = ptr + y * IMAGE_WIDTH;
@@ -91,13 +89,12 @@ void DP_AVX512_OMP::updateImage(const long double _zoom, const long double _offs
 
                 v_startReal = v_startReal + XStep;
             }
-        }
     }
 #endif
 }
 
 
-bool DP_AVX512_OMP::is_valid()
+bool DP_AVX512::is_valid()
 {
 #ifdef __AVX2__
     return true;

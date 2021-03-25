@@ -1,5 +1,9 @@
 #include "SP_SSE4_OMP.hpp"
 
+#ifdef __SSE4_2__
+#include <immintrin.h>
+#endif
+
 #define SP_CONV_STEP 4
 
 SP_SSE4_OMP::SP_SSE4_OMP() : Convergence("SP_SSE4_OMP")

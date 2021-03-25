@@ -1,20 +1,18 @@
 #include "Mandelbrot.hpp"
 
-Mandelbrot::Mandelbrot(Settings* p) {
-    params    = p;
+Mandelbrot::Mandelbrot(const int32_t Width, const int32_t Height, const int32_t iterations) {
     c         = nullptr;
     colors    = nullptr;
 
-    allocRessources( );
+    f_width    = Width;
+    f_height   = Height;
+    iters      = iterations;
 
-    const uint32_t nPixels = params->Width() * params->Height();
-
-    f_witdh  = params->Width();
-    f_height = params->Height();
-
+    const uint32_t nPixels = Width * Height;
     iter_icount = new uint32_t[nPixels];
     iter_fcount = new float   [nPixels];
 
+    allocRessources( );
 }
 
 
@@ -28,18 +26,17 @@ Mandelbrot::~Mandelbrot()
 
 void Mandelbrot::allocRessources( ){
 
-    if( colors == nullptr )
-        colors = library.get( params->ColorMapMode() );
-    else
-        colors = library.get();
-    colors->setIters( params->Iterations() );
+//    if( colors == nullptr )
+//        colors = library.get( params->ColorMapMode() );
+//    else
+    colors = library.get();
+    colors->setIters( iters );
 
-    if( c == nullptr )
-        c = converge.get( params->ConvergenceType() );
-    else
-        c = converge.get();
-
-    c->setIters( params->Iterations() );
+//    if( c == nullptr )
+//        c = converge.get( params->ConvergenceType() );
+//    else
+    c = converge.get();
+    c->setIters( iters  );
     c->setColor( colors );
 }
 
@@ -57,6 +54,12 @@ void Mandelbrot::freeRessources( )
 void Mandelbrot::Update(){
     freeRessources( );
     allocRessources( );
+}
+
+
+void Mandelbrot::Iterations(const int32_t iterations)
+{
+    iters = iterations;
 }
 
 
@@ -110,7 +113,7 @@ void Mandelbrot::Benchmark(const long double zoom, const long double offsetX, co
 {
     assert( f_witdh  == params->Width() );
     assert( f_height == params->Height() );
-    c->updateImage(zoom, offsetX, offsetY, params->Width(), params->Height(), iter_fcount);
+    c->updateImage(zoom, offsetX, offsetY, f_width, f_height, iter_fcount);
 }
 
 //
@@ -121,23 +124,20 @@ void Mandelbrot::updateImage(const long double zoom, const long double offsetX, 
     assert( f_witdh  == params->Width() );
     assert( f_height == params->Height() );
 
-    //printf("(II) Mandelbrot::updateImage : offsetX = %0.17Lf | offsetY = %0.17Lf | zoom = %0.17Lf |\n", offsetX, offsetY, zoom);
-#if 0
-    c->updateImage(zoom, offsetX, offsetY, params->Width(), params->Height(), image);
-#else
-    c->updateImage(zoom, offsetX, offsetY, params->Width(), params->Height(), iter_fcount);
-    colors->colorize(params->Width(), params->Height(), iter_fcount, image);
-#endif
+    c->updateImage(zoom, offsetX, offsetY, f_width, f_height, iter_fcount);
+    colors->colorize(f_width, f_height, iter_fcount, image);
+
     //
     //  Affichage du marqueur central si l'utilisateur l'a souhaité
     //
 
-    if (params->isCentralDotEnabled) {
+    if ( false /*params->isCentralDotEnabled*/)
+    {
         sf::Color white(255, 255, 255);
-        image.setPixel(params->Width()/2-1, params->Height()/2,   white);
-        image.setPixel(params->Width()/2+1, params->Height()/2,   white);
-        image.setPixel(params->Width()/2,   params->Height()/2,   white);
-        image.setPixel(params->Width()/2,   params->Height()/2-1, white);
-        image.setPixel(params->Width()/2,   params->Height()/2+1, white);
+        image.setPixel(f_width/2-1, f_height/2,   white);
+        image.setPixel(f_width/2+1, f_height/2,   white);
+        image.setPixel(f_width/2,   f_height/2,   white);
+        image.setPixel(f_width/2,   f_height/2-1, white);
+        image.setPixel(f_width/2,   f_height/2+1, white);
     }
 }

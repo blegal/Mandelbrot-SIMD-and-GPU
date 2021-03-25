@@ -12,7 +12,7 @@ void ColorGreyScale::setIters(int max_iters)
 
     MAX = max_iters;
 
-    for (uint32_t i = 0; i < MAX; ++i)
+    for (int32_t i = 0; i < MAX; ++i)
     {
         const float t = 255.0f * ((float)i/(float)max_iters);
         colors[i] = sf::Color(t, t, t);

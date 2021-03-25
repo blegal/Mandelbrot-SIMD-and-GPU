@@ -1,5 +1,8 @@
 #include "DP_AVX2_OMP.hpp"
 
+#ifdef __AVX2__
+    #include <immintrin.h>
+#endif
 
 DP_AVX2_OMP::DP_AVX2_OMP() : Convergence("DP_AVX2_OMP")
 {
