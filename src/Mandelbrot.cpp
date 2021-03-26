@@ -1,4 +1,5 @@
 #include "Mandelbrot.hpp"
+#include <chrono>
 
 Mandelbrot::Mandelbrot(const int32_t Width, const int32_t Height, const int32_t iterations) {
     c         = nullptr;
