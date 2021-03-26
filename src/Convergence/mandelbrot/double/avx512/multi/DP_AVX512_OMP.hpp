@@ -2,7 +2,6 @@
 #define _DP_AVX512_OMP_
 
 #include "Convergence/Convergence.hpp"
-#include "vectclass/vectorclass.h"
 
 class DP_AVX512_OMP : public Convergence {
 

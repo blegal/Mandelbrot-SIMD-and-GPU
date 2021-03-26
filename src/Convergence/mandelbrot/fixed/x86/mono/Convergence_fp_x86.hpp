@@ -1,7 +1,7 @@
 #ifndef _Convergence_fp_x86_
 #define _Convergence_fp_x86_
 
-#include "../../../../../../../../../../usr/local/include/SFML/Graphics.hpp"
+//#include "../../../../../../../../../../usr/local/include/SFML/Graphics.hpp"
 
 #include "../../../../Convergence.hpp"
 #include "../../fixed_point.hpp"

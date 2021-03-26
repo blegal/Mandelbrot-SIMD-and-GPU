@@ -5,7 +5,6 @@
 #include <array>
 #include <vector>
 #include <thread>
-#include "immintrin.h"
 
 #include "Convergence/Convergence.hpp"
 

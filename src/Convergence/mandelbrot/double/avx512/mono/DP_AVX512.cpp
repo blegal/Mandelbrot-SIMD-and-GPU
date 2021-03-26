@@ -1,6 +1,8 @@
 #if defined(__AVX512BW__) || defined(__AVX2__)
 #include "DP_AVX512.hpp"
 
+#include "vectclass/vectorclass.h"
+
 DP_AVX512::DP_AVX512() : Convergence("DP_AVX512")
 {
     fractal     = "mandelbrot";
