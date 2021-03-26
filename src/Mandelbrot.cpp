@@ -125,7 +125,7 @@ void Mandelbrot::RunBenchmark(const long double zoom, const long double offsetX,
         Convergence* cc = converge.list.at( m );
         auto start = chrono::steady_clock::now();
 
-        const int32_t nTests = 32;
+        const int32_t nTests = 2;
         for( int32_t loop = 0; loop < nTests; loop += 1 )
         {
             cc->updateImage(zoom, offsetX, offsetY, f_width, f_height, iter_fcount);
@@ -134,9 +134,8 @@ void Mandelbrot::RunBenchmark(const long double zoom, const long double offsetX,
 
         std::string item  = cc->toShortString();
         const auto mtime = chrono::duration_cast<chrono::microseconds>(end - start).count();
-        printf("%2d | ", m);
-        cout << item << " : ";
-        printf("%8lld us\n", (mtime/ nTests));
+        cout << "|" << item;
+        printf("%8lld us|\n", (mtime/ nTests));
 
     }
 //    c->updateImage(zoom, offsetX, offsetY, f_width, f_height, iter_fcount);

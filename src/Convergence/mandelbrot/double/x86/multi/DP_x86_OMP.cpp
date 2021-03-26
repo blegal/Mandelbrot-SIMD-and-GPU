@@ -1,6 +1,6 @@
 #include "DP_x86_OMP.hpp"
 
-DP_x86_OMP::DP_x86_OMP() : Convergence("DP_OMP")
+DP_x86_OMP::DP_x86_OMP() : Convergence("DP_x86_OMP", "Mandelbrot")
 {
     dataFormat  = "double";
     modeSIMD    = "none";
@@ -8,7 +8,7 @@ DP_x86_OMP::DP_x86_OMP() : Convergence("DP_OMP")
     OTHER       = "none";
 }
 
-DP_x86_OMP::DP_x86_OMP(ColorMap* _colors, int _max_iters) : Convergence("DP_OMP")
+DP_x86_OMP::DP_x86_OMP(ColorMap* _colors, int _max_iters) : Convergence("DP_x86_OMP", "Mandelbrot")
 {
     colors      = _colors;
     max_iters   = _max_iters;
