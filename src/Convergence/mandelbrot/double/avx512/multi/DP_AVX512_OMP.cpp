@@ -1,7 +1,7 @@
 #if defined(__AVX512BW__) || defined(__AVX2__)
 #include "DP_AVX512_OMP.hpp"
 
-#include "DP_AVX512.hpp"
+#include "vectclass/vectorclass.h"
 
 DP_AVX512_OMP::DP_AVX512_OMP() : Convergence("DP_AVX512_OMP")
 {
