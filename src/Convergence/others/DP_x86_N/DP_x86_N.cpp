@@ -1,4 +1,5 @@
 #include "DP_x86_N.hpp"
+#include <cmath>
 
 DP_x86_N::DP_x86_N() : Convergence("DP_x86_N", "DP_x86_N")
 {

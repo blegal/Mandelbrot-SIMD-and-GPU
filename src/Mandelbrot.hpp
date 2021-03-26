@@ -33,8 +33,9 @@ public:
 
     void Update();
 
-    void Benchmark(const long double zoom, const long double offsetX, const long double offsetY);
-    void updateImage(const long double zoom, const long double offsetX, const long double offsetY, sf::Image& image);
+    void Benchmark   (const long double zoom, const long double offsetX, const long double offsetY);
+    void RunBenchmark(const long double zoom, const long double offsetX, const long double offsetY);
+    void updateImage (const long double zoom, const long double offsetX, const long double offsetY, sf::Image& image);
 
     void nextColorMap();
     void previousColorMap();

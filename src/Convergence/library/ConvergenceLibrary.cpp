@@ -8,43 +8,65 @@
 
 ////////      DOUBLE POINT      ////////
 
-#include "Convergence/double/x86/mono/DP_x86.hpp"
-#include "Convergence/double/x86/multi/DP_x86_OMP.hpp"
-#include "Convergence/double/sse4/multi/DP_SSE4_OMP.hpp"
-#include "Convergence/double/avx2/multi/normal/DP_AVX2_OMP.hpp"
-#include "Convergence/double/avx2/multi/unroll_x2/DP_AVX2_OMP_u2.hpp"
-#include "Convergence/double/avx2/multi/unroll_x4/DP_AVX2_OMP_u4.hpp"
+#include "Convergence/mandelbrot/double/x86/mono/DP_x86.hpp"
+#include "Convergence/mandelbrot/double/x86/multi/DP_x86_OMP.hpp"
+
+#include "Convergence/mandelbrot/double/sse4/mono/DP_SSE4.hpp"
+#include "Convergence/mandelbrot/double/sse4/multi/DP_SSE4_OMP.hpp"
+
+#include "Convergence/mandelbrot/double/avx2/mono/normal/DP_AVX2.hpp"
+#include "Convergence/mandelbrot/double/avx2/multi/normal/DP_AVX2_OMP.hpp"
+
+#include "Convergence/mandelbrot/double/avx2/mono/unroll_x2/DP_AVX2_u2.hpp"
+#include "Convergence/mandelbrot/double/avx2/multi/unroll_x2/DP_AVX2_OMP_u2.hpp"
+
+#include "Convergence/mandelbrot/double/avx2/mono/unroll_x4/DP_AVX2_u4.hpp"
+#include "Convergence/mandelbrot/double/avx2/multi/unroll_x4/DP_AVX2_OMP_u4.hpp"
+
+#include "Convergence/mandelbrot/double/avx512/mono/DP_AVX512.hpp"
+#include "Convergence/mandelbrot/double/avx512/multi/DP_AVX512_OMP.hpp"
 
 
 ////////      FLOAT POINT      ////////
 
-#include "Convergence/simple/x86/mono/SP_x86.hpp"
-#include "Convergence/simple/x86/multi/SP_x86_OMP.hpp"
+#include "Convergence/mandelbrot/simple/x86/mono/SP_x86.hpp"
+#include "Convergence/mandelbrot/simple/x86/multi/SP_x86_OMP.hpp"
 
-#include "Convergence/simple/sse4/multi/SP_SSE4_OMP.hpp"
-#include "Convergence/simple/sse4/multi/SP_SSE4_OMP_vc.hpp"
+#include "Convergence/mandelbrot/simple/sse4/mono/SP_SSE4.hpp"
+#include "Convergence/mandelbrot/simple/sse4/mono/SP_SSE4_vc.hpp"
 
-#include "Convergence/simple/neon/mono/SP_NEON.hpp"
-#include "Convergence/simple/neon/multi/SP_NEON_OMP.hpp"
+#include "Convergence/mandelbrot/simple/sse4/multi/SP_SSE4_OMP.hpp"
+#include "Convergence/mandelbrot/simple/sse4/multi/SP_SSE4_OMP_vc.hpp"
 
-#include "Convergence/simple/avx2/multi/SP_AVX2_OMP.hpp"
-#include "Convergence/simple/avx2/multi/SP_AVX2_OMP_u2.hpp"
-//#include "simple/Convergence_sp_x86_omp_AVX_plus_plus.hpp"
+#include "Convergence/mandelbrot/simple/neon/mono/SP_NEON.hpp"
+#include "Convergence/mandelbrot/simple/neon/multi/SP_NEON_OMP.hpp"
 
+#include "Convergence/mandelbrot/simple/avx2/mono/SP_AVX2.hpp"
+#include "Convergence/mandelbrot/simple/avx2/mono/SP_AVX2_u2.hpp"
 
-#include "Convergence/simple/avx512/multi/SP_AVX512_OMP.hpp"
-#include "Convergence/simple/FPGA/mono/SP_FPGA.hpp"
+#include "Convergence/mandelbrot/simple/avx2/multi/SP_AVX2_OMP.hpp"
+#include "Convergence/mandelbrot/simple/avx2/multi/SP_AVX2_OMP_u2.hpp"
+
+#include "Convergence/mandelbrot/simple/avx512/mono/SP_AVX512.hpp"
+#include "Convergence/mandelbrot/simple/avx512/multi/SP_AVX512_OMP.hpp"
 
 
 ////////      FIXED POINT      ////////
 
-#include "Convergence/fixed/x86/mono/FP_Q16_11_x86.hpp"
-#include "Convergence/fixed/x86/mono/FP_Q18_14_x86.hpp"
-#include "Convergence/fixed/x86/mono/FP_Q32_27_x86.hpp"
+#include "Convergence/mandelbrot/simple/FPGA/mono/SP_FPGA.hpp"
 
-#include "Convergence/fixed/x86/mono/Convergence_fp_x86.hpp"
-#include "Convergence/fixed/x86/multi/Convergence_fp_x86_omp.hpp"
-#include "../fixed/sse4/Convergence_fp_x86_omp_SSE2.hpp"
+
+////////      FIXED POINT      ////////
+
+#include "Convergence/mandelbrot/fixed/x86/mono/FP_Q16_11_x86.hpp"
+#include "Convergence/mandelbrot/fixed/x86/mono/FP_Q18_14_x86.hpp"
+#include "Convergence/mandelbrot/fixed/x86/mono/FP_Q32_27_x86.hpp"
+
+#include "Convergence/mandelbrot/fixed/x86/mono/Convergence_fp_x86.hpp"
+#include "Convergence/mandelbrot/fixed/x86/multi/Convergence_fp_x86_omp.hpp"
+
+#include "Convergence/mandelbrot/fixed/sse4/Convergence_fp_x86_omp_SSE2.hpp"
+
 
 ////    ////    ////    ////    ////    ////    ////
 #include "Convergence/julia/simple/x86/julia-mono/JU_SP_x86.hpp"
@@ -62,26 +84,59 @@ ConvergenceLibrary::ConvergenceLibrary()
     list.push_back( new SP_x86         (nullptr, 255) );
     list.push_back( new SP_x86_OMP     (nullptr, 255) );
 
+    list.push_back( new SP_SSE4        (nullptr, 255) );
+    list.push_back( new SP_SSE4_vc     (nullptr, 255) );
+
     list.push_back( new SP_SSE4_OMP    (nullptr, 255) );
     list.push_back( new SP_SSE4_OMP_vc (nullptr, 255) );
 
     list.push_back( new SP_NEON        (nullptr, 255) );
     list.push_back( new SP_NEON_OMP    (nullptr, 255) );
 
+    list.push_back( new SP_AVX2        (nullptr, 255) );
+    list.push_back( new SP_AVX2_u2     (nullptr, 255) );
+
     list.push_back( new SP_AVX2_OMP    (nullptr, 255) );
     list.push_back( new SP_AVX2_OMP_u2 (nullptr, 255) );
 
+    list.push_back( new SP_AVX512      (nullptr, 255) );
     list.push_back( new SP_AVX512_OMP  (nullptr, 255) );
 
+    //
+    //////////////////////////////////////////////////////////////////////
+    //
 
     list.push_back( new DP_x86        (nullptr, 255) );
     list.push_back( new DP_x86_OMP    (nullptr, 255) );
+
+    list.push_back( new DP_SSE4       (nullptr, 255) );
     list.push_back( new DP_SSE4_OMP   (nullptr, 255) );
+
+    list.push_back( new DP_AVX2       (nullptr, 255) );
     list.push_back( new DP_AVX2_OMP   (nullptr, 255) );
+
+    list.push_back( new DP_AVX2_u2    (nullptr, 255) );
     list.push_back( new DP_AVX2_OMP_u2(nullptr, 255) );
+
+    list.push_back( new DP_AVX2_u4    (nullptr, 255) );
     list.push_back( new DP_AVX2_OMP_u4(nullptr, 255) );
 
+    //
+    //////////////////////////////////////////////////////////////////////
+    //
+
 //    list.push_back( new SP_FPGA        (nullptr, 255) );
+
+    //
+    //////////////////////////////////////////////////////////////////////
+    //
+
+    list.push_back( new QP_x86                (nullptr, 255) );
+    list.push_back( new QP_x86_OMP            (nullptr, 255) );
+
+    //
+    //////////////////////////////////////////////////////////////////////
+    //
 
     list.push_back( new FP_Q16_11_x86               (nullptr, 255) );
     list.push_back( new FP_Q18_14_x86               (nullptr, 255) );
@@ -90,11 +145,18 @@ ConvergenceLibrary::ConvergenceLibrary()
     list.push_back( new Convergence_fp_x86_omp      (nullptr, 255) );
 //  list.push_back( new Convergence_fp_x86_omp_SSE2 (nullptr, 255) );
 
-    list.push_back( new QP_x86                (nullptr, 255) );
-    list.push_back( new QP_x86_OMP            (nullptr, 255) );
+    //
+    //////////////////////////////////////////////////////////////////////
+    //
 
-    list.push_back( new JU_SP_x86      (nullptr, 255) );
+    list.push_back( new JU_SP_x86       (nullptr, 255) );
+
+    list.push_back( new JU_SP_AVX512    (nullptr, 255) );
     list.push_back( new JU_SP_AVX512_OMP(nullptr, 255) );
+
+    //
+    //////////////////////////////////////////////////////////////////////
+    //
 
     std::cout << "INSTANCIATED MODULES:" << std::endl;
     std::cout << "--------------------"  << std::endl;
@@ -115,6 +177,13 @@ ConvergenceLibrary::ConvergenceLibrary()
             i -= 1;
         }
     }
+
+    std::cout << "FINALLY AVAILABLE MODULES:" << std::endl;
+    std::cout << "-------------------------"  << std::endl;
+
+    listAllModules();
+
+    std::cout << "-------------------------"  << std::endl;
 
     //
     //
@@ -145,6 +214,11 @@ Convergence* ConvergenceLibrary::get(int num){
     return get();
 }
 
+int32_t ConvergenceLibrary::size( )
+{
+    return list.size();
+}
+
 Convergence* ConvergenceLibrary::get(){
 //        printf("GET %d : (%p) name = %s \n", counter, list[counter], list[counter]->name().c_str());
     //printf("Convergence :: get (%d) : (%p) name = %s \n", counter, list[counter], list[counter]->name().c_str());
@@ -162,6 +236,9 @@ void ConvergenceLibrary::previous(){
 
 void ConvergenceLibrary::listAllModules()
 {
-    for(int i=0; i<list.size(); i++)
+    for(int32_t i = 0; i < list.size(); i+= 1)
+    {
+        printf("%2d : ", i);
         cout << list[i]->toString() << std::endl;
+    }
 }

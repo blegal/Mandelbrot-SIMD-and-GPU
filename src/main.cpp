@@ -11,15 +11,10 @@
 #include "Utils/Settings.hpp"
 #include "Utils/FileHandler.hpp"
 #include "Mandelbrot.hpp"
-#include "Convergence/fixed/fixed_point.hpp"
 
 #include "Utils/StringUtils.hpp"
 #include <getopt.h>
 
-#define LONG_OPTION 0
-#define TAB_CSV_HSTART 2
-#define TAB_CSV_VSTART 10
-#define TAB_CSV_VSTEP 30
 
 
 int main(int argc, char* argv[]) {
@@ -37,7 +32,22 @@ int main(int argc, char* argv[]) {
 
     printf("(II) Dimension de la fenetre (%d, %d)\n", width, height);
 
+#define _bench_
+#ifdef  _bench_
+    width   = 3840;
+    height  = 2160;
+    offsetX = -0.71595446758947083;
+    offsetY = -0.28415288527686088;
+    zoom    = +0.00000775942804870;
+#endif
+
     Mandelbrot mb( width, height, iterations );
+
+
+#ifdef _bench_
+    mb.RunBenchmark(zoom, offsetX, offsetY);
+    exit( EXIT_FAILURE );
+#endif
 
     // Window creation
     sf::RenderWindow window(sf::VideoMode(width, height), "Mandelbrot - Premium HD edition");
@@ -52,17 +62,6 @@ int main(int argc, char* argv[]) {
     bool showElapsedTime = false; // track whether the image needs to be regenerated
 //    sf::Clock clicTime;
 
-    sf::Clock autoZoomTime;
-//    std::chrono::steady_clock::time_point autoZoomBegin = std::chrono::steady_clock::now();
-//    unsigned int sumDuration = 0;
-//    unsigned int avgTime     = 0;
-//    unsigned int medianTime  = 0;
-//    unsigned int maxDuration = 0;
-//    unsigned int minDuration = 1000000;
-
-//    bool autoZoomFinished          = false;
-//    bool autoZoomFinished_10times  = false;
-//    unsigned int compteur_autoZoom = 1;
     std::vector<unsigned int> execTimes;
 
     window.setFramerateLimit(20); // Limite à 60 images par seconde

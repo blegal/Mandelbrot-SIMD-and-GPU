@@ -9,8 +9,9 @@
 
 
 class ConvergenceLibrary {
-private:
+public:
     std::vector<            Convergence*> list;
+private:
     std::map   <std::string,Convergence*> dico;
     std::map   <std::string,int         > indx;
 
@@ -31,6 +32,8 @@ public:
     void next();
 
     void previous();
+
+    int32_t size();
 
     virtual void listAllModules();
 

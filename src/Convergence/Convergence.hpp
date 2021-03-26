@@ -17,7 +17,8 @@ protected:
     std::string OTHER;
 
 public:
-    Convergence(std::string value);
+    Convergence(const std::string value);
+    Convergence(const std::string _name_, const std::string _fractal_);
 
     virtual ~Convergence();
 
@@ -30,6 +31,7 @@ public:
     void setIters(const unsigned int value);
 
     std::string toString();
+    std::string toShortString();
 
     virtual bool is_valid() = 0;
 };
