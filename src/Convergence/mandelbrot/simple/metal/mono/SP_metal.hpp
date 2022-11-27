@@ -1,5 +1,6 @@
 #ifndef _SP_metal_
 #define _SP_metal_
+#if defined(__APPLE__)
 /*
  *
  *
@@ -61,4 +62,5 @@ private:
 
 };
 
+#endif
 #endif

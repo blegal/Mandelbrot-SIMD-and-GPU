@@ -33,6 +33,8 @@
 
 #include "Convergence/mandelbrot/simple/metal/mono/SP_metal.hpp"
 
+#include "Convergence/mandelbrot/simple/cuda/mono/SP_cuda.hpp"
+
 ////////      FLOAT POINT      ////////
 
 #include "Convergence/mandelbrot/simple/x86/mono/SP_x86.hpp"
@@ -111,7 +113,12 @@ ConvergenceLibrary::ConvergenceLibrary()
     //////////////////////////////////////////////////////////////////////
     //
 
-    list.push_back( new SP_metal      (nullptr, 255) );
+#if defined(__APPLE__)
+    list.push_back( new SP_metal(nullptr, 255) );
+#endif
+
+
+    list.push_back( new SP_cuda(nullptr, 255) );
 
     //
     //////////////////////////////////////////////////////////////////////

@@ -136,7 +136,7 @@ void Mandelbrot::RunBenchmark(const long double zoom, const long double offsetX,
         std::string item  = cc->toShortString();
         const auto mtime = chrono::duration_cast<chrono::microseconds>(end - start).count();
         cout << "|" << item;
-        printf("%8lld us|\n", (mtime/ nTests));
+        printf("%8ld us|\n", (mtime/ nTests));
 
     }
 //    c->updateImage(zoom, offsetX, offsetY, f_width, f_height, iter_fcount);

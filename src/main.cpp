@@ -57,11 +57,20 @@ int main(int argc, char* argv[])
                 printf("\n");
                 break;
 
-            case 'w': width      = atoi( optarg ); break;
-            case 'h': height     = atoi( optarg ); break;
-            case 'i': iterations = atoi( optarg ); break;
+            case 'w':
+                width = atoi( optarg );
+                break;
+
+            case 'h':
+                height = atoi( optarg );
+                break;
+
+            case 'i':
+                iterations = atoi( optarg );
+                break;
 
             case 'b':
+                printf("(II) Activating benchmarking mode\n");
                 benchmark  = true;
                 offsetX = -1.41718135711085513;
                 offsetY = -0.00150879989408595;
