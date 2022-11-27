@@ -14,6 +14,9 @@
 #include "Convergence/mandelbrot/double/sse4/mono/DP_SSE4.hpp"
 #include "Convergence/mandelbrot/double/sse4/multi/DP_SSE4_OMP.hpp"
 
+#include "Convergence/mandelbrot/double/neon/mono/DP_NEON.hpp"
+#include "Convergence/mandelbrot/double/neon/multi/DP_NEON_OMP.hpp"
+
 #include "Convergence/mandelbrot/double/avx2/mono/normal/DP_AVX2.hpp"
 #include "Convergence/mandelbrot/double/avx2/multi/normal/DP_AVX2_OMP.hpp"
 
@@ -26,6 +29,9 @@
 #include "Convergence/mandelbrot/double/avx512/mono/DP_AVX512.hpp"
 #include "Convergence/mandelbrot/double/avx512/multi/DP_AVX512_OMP.hpp"
 
+////////      GPU VERSIONS (FLOAT and DOUBLE)      ////////
+
+#include "Convergence/mandelbrot/simple/metal/mono/SP_metal.hpp"
 
 ////////      FLOAT POINT      ////////
 
@@ -51,10 +57,9 @@
 #include "Convergence/mandelbrot/simple/avx512/multi/SP_AVX512_OMP.hpp"
 
 
-////////      FIXED POINT      ////////
+////////      FPGA <=> ETHERNET      ////////
 
 #include "Convergence/mandelbrot/simple/FPGA/mono/SP_FPGA.hpp"
-
 
 ////////      FIXED POINT      ////////
 
@@ -106,11 +111,20 @@ ConvergenceLibrary::ConvergenceLibrary()
     //////////////////////////////////////////////////////////////////////
     //
 
+    list.push_back( new SP_metal      (nullptr, 255) );
+
+    //
+    //////////////////////////////////////////////////////////////////////
+    //
+
     list.push_back( new DP_x86        (nullptr, 255) );
     list.push_back( new DP_x86_OMP    (nullptr, 255) );
 
     list.push_back( new DP_SSE4       (nullptr, 255) );
     list.push_back( new DP_SSE4_OMP   (nullptr, 255) );
+
+    list.push_back( new DP_NEON        (nullptr, 255) );
+    list.push_back( new DP_NEON_OMP    (nullptr, 255) );
 
     list.push_back( new DP_AVX2       (nullptr, 255) );
     list.push_back( new DP_AVX2_OMP   (nullptr, 255) );
@@ -120,6 +134,9 @@ ConvergenceLibrary::ConvergenceLibrary()
 
     list.push_back( new DP_AVX2_u4    (nullptr, 255) );
     list.push_back( new DP_AVX2_OMP_u4(nullptr, 255) );
+
+    list.push_back( new DP_AVX512      (nullptr, 255) );
+    list.push_back( new DP_AVX512_OMP  (nullptr, 255) );
 
     //
     //////////////////////////////////////////////////////////////////////

@@ -1,6 +1,6 @@
 #include "DP_NEON_OMP.hpp"
 
-#ifdef __ARM_NEON__
+#if defined(__ARM_NEON__) || defined(__ARM_NEON)
     #include <arm_neon.h>
 #endif
 
@@ -31,7 +31,7 @@ DP_NEON_OMP::~DP_NEON_OMP()
 }
 
 
-#ifdef __ARM_NEON__
+#if defined(__ARM_NEON__) || defined(__ARM_NEON)
 inline int _arm_movemask_pd(const uint64x2_t a)
 {
     uint32x4_t input = a;
@@ -44,7 +44,7 @@ inline int _arm_movemask_pd(const uint64x2_t a)
 
 void DP_NEON_OMP::updateImage(const long double _zoom, const long double _offsetX, const long double _offsetY, const int IMAGE_WIDTH, const int IMAGE_HEIGHT, float* ptr)
 {
-#ifdef __ARM_NEON__
+#if defined(__ARM_NEON__) || defined(__ARM_NEON)
     const double f_zoom    = (double)_zoom;
     const double f_offsetX = (double)_offsetX;
     const double f_offsetY = (double)_offsetY;
@@ -113,7 +113,7 @@ void DP_NEON_OMP::updateImage(const long double _zoom, const long double _offset
 
 bool DP_NEON_OMP::is_valid()
 {
-#ifdef __ARM_NEON__
+#if defined(__ARM_NEON__) || defined(__ARM_NEON)
     return true;
 #else
     return false;

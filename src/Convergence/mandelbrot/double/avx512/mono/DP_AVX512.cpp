@@ -1,7 +1,8 @@
-#if defined(__AVX512BW__) || defined(__AVX2__)
 #include "DP_AVX512.hpp"
 
-#include "vectclass/vectorclass.h"
+#if defined(__AVX512F__)
+    #include "vectclass/vectorclass.h"
+#endif
 
 DP_AVX512::DP_AVX512() : Convergence("DP_AVX512")
 {
@@ -35,7 +36,7 @@ DP_AVX512::~DP_AVX512()
 
 void DP_AVX512::updateImage(const long double _zoom, const long double _offsetX, const long double _offsetY, const int IMAGE_WIDTH, const int IMAGE_HEIGHT, float* ptr)
 {
-#ifdef __AVX2__
+#if defined(__AVX512BW__) || defined(__AVX2__)
     const float f_zoom    = (float) _zoom;
     const float f_offsetX = (float) _offsetX;
     const float f_offsetY = (float) _offsetY;
@@ -98,10 +99,9 @@ void DP_AVX512::updateImage(const long double _zoom, const long double _offsetX,
 
 bool DP_AVX512::is_valid()
 {
-#ifdef __AVX2__
+#if defined(__AVX512BW__) || defined(__AVX2__)
     return true;
 #else
     return false;
 #endif
 }
-#endif

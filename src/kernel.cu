@@ -183,19 +183,24 @@ __device__ unsigned short process_cuda_s(const float startReal, const float star
   return max_iters - 1;
 }
 
-__global__ void kernel_compute_cuda_s(float zoom, float offsetX, float offsetY, unsigned int max_iters,
-  int IMAGE_WIDTH, int IMAGE_HEIGHT, unsigned short *device_value) {
+__global__ void kernel_compute_cuda_s(
+        float zoom,
+        float offsetX,
+        float offsetY,
+        unsigned int max_iters,
+        int IMAGE_WIDTH,
+        int IMAGE_HEIGHT,
+        unsigned short *device_value)
+{
 
-	int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
+    const int x = blockIdx.x * blockDim.x + threadIdx.x;
+    const int y = blockIdx.y * blockDim.y + threadIdx.y;
 
-  float imag;
-  float real;
-
-  if ( (x<IMAGE_WIDTH) && (y<IMAGE_HEIGHT) ) {
-    imag = offsetY - IMAGE_HEIGHT / 2.0f * zoom + (y * zoom);
-    real = (offsetX - IMAGE_WIDTH / 2.0f * zoom)+((x)*zoom);
-    device_value[y*IMAGE_WIDTH +x] = process_cuda_s(real, imag, max_iters);
+    if ( (x < IMAGE_WIDTH) && (y < IMAGE_HEIGHT) )
+    {
+        float imag = offsetY  - IMAGE_HEIGHT / 2.0f * zoom  + (y * zoom);
+        float real = (offsetX - IMAGE_WIDTH  / 2.0f * zoom) + (x * zoom);
+        device_value[y*IMAGE_WIDTH +x] = process_cuda_s(real, imag, max_iters);
 	}
 }
 

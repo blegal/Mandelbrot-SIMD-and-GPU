@@ -1,6 +1,6 @@
 #include "SP_NEON.hpp"
 
-#ifdef __ARM_NEON__
+#if defined(__ARM_NEON__) || defined(__ARM_NEON)
     #include <arm_neon.h>
 #endif
 
@@ -33,7 +33,7 @@ SP_NEON::~SP_NEON()
 }
 
 
-#ifdef __ARM_NEON__
+#if defined(__ARM_NEON__) || defined(__ARM_NEON)
 inline int _arm_movemask_ps(const uint32x4_t a)
 {
     uint32x4_t input = a;
@@ -52,7 +52,7 @@ inline int _arm_movemask_ps(const uint32x4_t a)
 
 void SP_NEON::updateImage(const long double _zoom, const long double _offsetX, const long double _offsetY,
                           const int IMAGE_WIDTH, const int IMAGE_HEIGHT, float *ptr) {
-#ifdef __ARM_NEON__
+#if defined(__ARM_NEON__) || defined(__ARM_NEON)
     const float f_zoom    = (float)_zoom;
     const float f_offsetX = (float)_offsetX;
     const float f_offsetY = (float)_offsetY;
@@ -120,7 +120,7 @@ void SP_NEON::updateImage(const long double _zoom, const long double _offsetX, c
 
 
 bool SP_NEON::is_valid() {
-#ifdef __ARM_NEON__
+#if defined(__ARM_NEON__) || defined(__ARM_NEON)
     return true;
 #else
     return false;

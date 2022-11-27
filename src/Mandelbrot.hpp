@@ -51,7 +51,6 @@ private:
     void updateImageSlice(const long double zoom, const long double offsetX, const long double offsetY, sf::Image& image, int minY, int maxY);
     ColorLibrary       library;
     ConvergenceLibrary converge;
-//    Settings*          params;
 
     uint32_t* iter_icount;
     float*    iter_fcount;

@@ -17,39 +17,85 @@
 
 
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
 
-    int32_t width = 1200;
-    int32_t height = 800;
+    int32_t width      = 1200;
+    int32_t height     = 800;
+    int32_t iterations = 256;
+
+    bool benchmark = false;
 
     // Apply parameters :
     long double offsetX = -0.70000000000000000; // and move around
     long double offsetY =  0.00000000000000000;
     long double zoom    =  0.00400000000000000;    // allow the user to zoom in and out...
 
-    int32_t iterations = 256;
     long double wheelZoomFactor = 0.05;
+
+
+    static struct option long_options[] = {
+        {"width",      required_argument,  0,  'w' },
+        {"height",     required_argument,  0,  'h' },
+        {"iters",      required_argument,  0,  'i' },
+        {"benchmark",  no_argument,        0,  'b' },
+        {0,                            0,  0,   0  }
+    };
+	while (1)
+	{
+        int option_index = 0;
+		
+		int c = getopt_long(argc, argv, "I:V:w:h:d:vs:f:", long_options, &option_index);
+        if (c == -1)
+            break;
+
+    	switch (c) {
+            case 0:
+                printf("option %s", long_options[option_index].name);
+                if (optarg)
+                    printf(" with arg %s", optarg);
+                printf("\n");
+                break;
+
+            case 'w': width      = atoi( optarg ); break;
+            case 'h': height     = atoi( optarg ); break;
+            case 'i': iterations = atoi( optarg ); break;
+
+            case 'b':
+                benchmark  = true;
+                offsetX = -1.41718135711085513;
+                offsetY = -0.00150879989408595;
+                zoom    =  0.00004280112436037;
+                break;
+
+       default:
+            printf("?? getopt returned character code 0%o ??\n",     c);
+            printf("?? getopt returned character code %d ??\n", (int)c);
+            printf("?? getopt returned character code %c ??\n",      c);
+        }
+    }
+
 
     printf("(II) Dimension de la fenetre (%d, %d)\n", width, height);
 
-#define _bench_
-#ifdef  _bench_
-    width   = 3840;
-    height  = 2160;
-    offsetX = -0.71595446758947083;
-    offsetY = -0.28415288527686088;
-    zoom    = +0.00000775942804870;
-#endif
-
     Mandelbrot mb( width, height, iterations );
 
+    if( benchmark == true )
+    {
+        width   = 3840;
+        height  = 2160;
+        offsetX = -0.71595446758947083;
+        offsetY = -0.28415288527686088;
+        zoom    = +0.00000775942804870;
+        
+        mb.RunBenchmark(zoom, offsetX, offsetY);
+        
+        exit( EXIT_FAILURE );
+    }
 
-#ifdef _bench_
-    mb.RunBenchmark(zoom, offsetX, offsetY);
-    exit( EXIT_FAILURE );
-#endif
-
+    //
     // Window creation
+    //
     sf::RenderWindow window(sf::VideoMode(width, height), "Mandelbrot - Premium HD edition");
     window.setFramerateLimit(0);
 
