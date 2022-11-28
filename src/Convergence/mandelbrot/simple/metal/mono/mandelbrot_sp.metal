@@ -74,34 +74,34 @@ kernel void mandelbrot_sp(
     float startReal = zReal;
     float startImag = zImag;
 
-    uint max_counter = 0;
-
-#pragma unroll 8
-    for (uint counter = 0; counter < v_max_iters; counter++)
+    uint counter = 0;
+#if 1
+    for (; counter < v_max_iters; counter += 1)
     {
-        float r2 = zReal * zReal;
-        float i2 = zImag * zImag;
+        const float r2 = zReal * zReal;
+        const float i2 = zImag * zImag;
 
         zImag = 2.0f * zReal * zImag + startImag;
         zReal = r2 - i2 + startReal;
 
-#if 1
         if ( (r2 + i2) > 4.0f)
         {
             break;
         }
-        max_counter = counter;
-#else
-        if ( (r2 + i2) > 4.0f)
-        {
-            max_counter = counter;
-        }
-#endif
-
     }
+#else
+    float r2, i2;
+    do {
+        r2    = zReal * zReal;
+        i2    = zImag * zImag;
+        zImag = 2.0f * zReal * zImag + startImag;
+        zReal = r2 - i2 + startReal;
+
+    } while( (counter++ < v_max_iters) &&  ((r2 + i2) < 4.0) );
+#endif
 
     threadgroup_barrier(mem_flags::mem_none);
 
     const uint v_pos = position.y * v_width + position.x;
-    v_dat[v_pos]     = max_counter;
+    v_dat[v_pos]     = counter;
 }
