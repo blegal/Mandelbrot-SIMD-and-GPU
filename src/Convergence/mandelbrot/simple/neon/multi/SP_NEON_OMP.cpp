@@ -1,8 +1,30 @@
-#include "SP_NEON_OMP.hpp"
-
+/*
+ *  Copyright (c) 2026-... Bertrand LE GAL
+ *
+ *  This software is provided 'as-is', without any express or
+ *  implied warranty. In no event will the authors be held
+ *  liable for any damages arising from the use of this software.
+ *
+ *  Permission is granted to anyone to use this software for any purpose,
+ *  including commercial applications, and to alter it and redistribute
+ *  it freely, subject to the following restrictions:
+ *
+ *  1. The origin of this software must not be misrepresented;
+ *  you must not claim that you wrote the original software.
+ *  If you use this software in a product, an acknowledgment
+ *  in the product documentation would be appreciated but
+ *  is not required.
+ *
+ *  2. Altered source versions must be plainly marked as such,
+ *  and must not be misrepresented as being the original software.
+ *
+ *  3. This notice may not be removed or altered from any
+ *  source distribution.
+ *
+ */
 #if defined(__ARM_NEON__) || defined(__ARM_NEON)
-    #include <arm_neon.h>
-#endif
+#include "SP_NEON_OMP.hpp"
+#include <arm_neon.h>
 
 SP_NEON_OMP::SP_NEON_OMP() : Convergence("SP_NEON_OMP")
 {
@@ -49,7 +71,6 @@ inline int _arm_movemask_ps(const uint32x4_t a)
 
 void SP_NEON_OMP::updateImage(const long double _zoom, const long double _offsetX, const long double _offsetY, const int IMAGE_WIDTH, const int IMAGE_HEIGHT, float* ptr)
 {
-#if defined(__ARM_NEON__) || defined(__ARM_NEON)
     const float f_zoom    = (float)_zoom;
     const float f_offsetX = (float)_offsetX;
     const float f_offsetY = (float)_offsetY;
@@ -114,15 +135,11 @@ void SP_NEON_OMP::updateImage(const long double _zoom, const long double _offset
             }
         }
     }
-#endif
 }
 
 
 bool SP_NEON_OMP::is_valid()
 {
-#if defined(__ARM_NEON__) || defined(__ARM_NEON)
     return true;
-#else
-    return false;
-#endif
 }
+#endif

@@ -1,8 +1,30 @@
-#include "DP_AVX2.hpp"
-
+/*
+ *  Copyright (c) 2026-... Bertrand LE GAL
+ *
+ *  This software is provided 'as-is', without any express or
+ *  implied warranty. In no event will the authors be held
+ *  liable for any damages arising from the use of this software.
+ *
+ *  Permission is granted to anyone to use this software for any purpose,
+ *  including commercial applications, and to alter it and redistribute
+ *  it freely, subject to the following restrictions:
+ *
+ *  1. The origin of this software must not be misrepresented;
+ *  you must not claim that you wrote the original software.
+ *  If you use this software in a product, an acknowledgment
+ *  in the product documentation would be appreciated but
+ *  is not required.
+ *
+ *  2. Altered source versions must be plainly marked as such,
+ *  and must not be misrepresented as being the original software.
+ *
+ *  3. This notice may not be removed or altered from any
+ *  source distribution.
+ *
+ */
 #ifdef __AVX2__
-    #include <immintrin.h>
-#endif
+#include "DP_AVX2.hpp"
+#include <immintrin.h>
 
 DP_AVX2::DP_AVX2() : Convergence("DP_AVX2")
 {
@@ -34,7 +56,6 @@ DP_AVX2::~DP_AVX2()
 
 void DP_AVX2::updateImage(const long double _zoom, const long double _offsetX, const long double _offsetY, const int IMAGE_WIDTH, const int IMAGE_HEIGHT, float* ptr)
 {
-#ifdef __AVX2__
     const double zoom    = _zoom;
     const double offsetX = _offsetX;
     const double offsetY = _offsetY;
@@ -48,52 +69,50 @@ void DP_AVX2::updateImage(const long double _zoom, const long double _offsetX, c
     const double sImag = offsetY - IMAGE_HEIGHT / 2.0 * zoom;
 
 
-        for (int y = 0 ; y < IMAGE_HEIGHT ; y++) {
+    for (int y = 0 ; y < IMAGE_HEIGHT ; y++) {
 
-            float* ptr_o = ptr + y * IMAGE_WIDTH;
+        float* ptr_o = ptr + y * IMAGE_WIDTH;
 
-                  __m256d v_sReal = _mm256_setr_pd(sReal, sReal + zoom, sReal + 2.0 * zoom, sReal + 3.0 * zoom);
-            const __m256d v_sImag = _mm256_set1_pd(sImag + (y * zoom));
+        __m256d v_sReal = _mm256_setr_pd(sReal, sReal + zoom, sReal + 2.0 * zoom, sReal + 3.0 * zoom);
+        const __m256d v_sImag = _mm256_set1_pd(sImag + (y * zoom));
 
-            for (int x = 0 ; x < IMAGE_WIDTH ; x += CONV_STEP) {
+        for (int x = 0 ; x < IMAGE_WIDTH ; x += CONV_STEP)
+        {
 
-                __m256d v_value = _mm256_setzero_pd();
-                __m256d v_zReal = v_sReal;
-                __m256d v_zImag = v_sImag;
+            __m256d v_value = _mm256_setzero_pd();
+            __m256d v_zReal = v_sReal;
+            __m256d v_zImag = v_sImag;
 
-                for (unsigned int counter = 0; counter < max_iters; counter++) {
-                    const __m256d v_r2 = _mm256_mul_pd(v_zReal, v_zReal);
-                    const __m256d v_i2 = _mm256_mul_pd(v_zImag, v_zImag);
+            for (int counter = 0; counter < max_iters; counter++)
+            {
+                const __m256d v_r2 = _mm256_mul_pd(v_zReal, v_zReal);
+                const __m256d v_i2 = _mm256_mul_pd(v_zImag, v_zImag);
 
-                    v_zImag = _mm256_add_pd(_mm256_mul_pd(v_2_0f, _mm256_mul_pd(v_zReal, v_zImag)), v_sImag);
-                    v_zReal = _mm256_add_pd(_mm256_sub_pd(v_r2, v_i2), v_sReal);
+                v_zImag = _mm256_add_pd(_mm256_mul_pd(v_2_0f, _mm256_mul_pd(v_zReal, v_zImag)), v_sImag);
+                v_zReal = _mm256_add_pd(_mm256_sub_pd(v_r2, v_i2), v_sReal);
 
-                    const __m256d v_r2_plus_i2 = _mm256_add_pd(v_r2, v_i2);
+                const __m256d v_r2_plus_i2 = _mm256_add_pd(v_r2, v_i2);
 
-                    const __m256d v_cmp_res = _mm256_cmp_pd(v_r2_plus_i2, v_4_0f, _CMP_LT_OS);
-                    const __m256d u_value   = _mm256_add_pd(v_value, v_1_0f);
-                    v_value                 = _mm256_blendv_pd(v_value, u_value, v_cmp_res); // si r2+i2 < 4 value++
+                const __m256d v_cmp_res = _mm256_cmp_pd(v_r2_plus_i2, v_4_0f, _CMP_LT_OS);
+                const __m256d u_value   = _mm256_add_pd(v_value, v_1_0f);
+                v_value                 = _mm256_blendv_pd(v_value, u_value, v_cmp_res); // si r2+i2 < 4 value++
 
-                    const int32_t res = _mm256_movemask_pd(v_cmp_res);
-                    if (res == 0) { // si r2+i2 > 4 pour tous les élements
-                        break;
-                    }
+                const int32_t res = _mm256_movemask_pd(v_cmp_res);
+                if (res == 0) { // si r2+i2 > 4 pour tous les élements
+                    break;
                 }
-
-                _mm_storeu_ps(ptr_o, _mm256_cvtpd_ps (v_value));
-                ptr_o  += (sizeof(__m128)/sizeof(float));
-                v_sReal = _mm256_add_pd(v_sReal, XStep);
             }
+
+            _mm_storeu_ps(ptr_o, _mm256_cvtpd_ps (v_value));
+            ptr_o  += (sizeof(__m128)/sizeof(float));
+            v_sReal = _mm256_add_pd(v_sReal, XStep);
         }
-#endif
+    }
 }
 
 
 bool DP_AVX2::is_valid()
 {
-#ifdef __AVX2__
     return true;
-#else
-    return false;
-#endif
 }
+#endif

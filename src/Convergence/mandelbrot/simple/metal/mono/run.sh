@@ -1,15 +1,27 @@
-#/opt/homebrew/opt/llvm/bin/clang++ \
-#    -std=c++17 -stdlib=libc++ -O2 \
-#    -L/opt/homebrew/opt/libomp/lib -fopenmp \
-#    -I./metal-cpp \
-#    -fno-objc-arc -I./metal\
-#    -framework Metal -framework Foundation -framework MetalKit \
-#    -g src/main.cpp src/MetalAdder.cpp src/vadd/vec_add_x86.cpp  -o bin/benchmark.x 
-
-#xcrun -sdk macosx metal -c ../src/kernel/metal/galaxeirb.metal -o MyLibrary.air
-#xcrun -sdk macosx metallib MyLibrary.air                       -o default.metallib
+#/*
+# *  Copyright (c) 2026-... Bertrand LE GAL
+# *
+# *  This software is provided 'as-is', without any express or
+# *  implied warranty. In no event will the authors be held
+# *  liable for any damages arising from the use of this software.
+# *
+# *  Permission is granted to anyone to use this software for any purpose,
+# *  including commercial applications, and to alter it and redistribute
+# *  it freely, subject to the following restrictions:
+# *
+# *  1. The origin of this software must not be misrepresented;
+# *  you must not claim that you wrote the original software.
+# *  If you use this software in a product, an acknowledgment
+# *  in the product documentation would be appreciated but
+# *  is not required.
+# *
+# *  2. Altered source versions must be plainly marked as such,
+# *  and must not be misrepresented as being the original software.
+# *
+# *  3. This notice may not be removed or altered from any
+# *  source distribution.
+# *
+# */
 
 xcrun -sdk macosx metal -c ../src/Convergence/mandelbrot/simple/metal/mono/mandelbrot_sp.metal -o mandelbrot_sp.air
 xcrun -sdk macosx metallib                                                 mandelbrot_sp.air   -o mandelbrot_sp.metallib
-
-#./bin/benchmark.x

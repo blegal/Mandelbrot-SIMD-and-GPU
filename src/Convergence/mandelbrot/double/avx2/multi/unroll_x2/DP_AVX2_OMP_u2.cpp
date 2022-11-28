@@ -1,8 +1,30 @@
-#include "DP_AVX2_OMP_u2.hpp"
-
+/*
+ *  Copyright (c) 2026-... Bertrand LE GAL
+ *
+ *  This software is provided 'as-is', without any express or
+ *  implied warranty. In no event will the authors be held
+ *  liable for any damages arising from the use of this software.
+ *
+ *  Permission is granted to anyone to use this software for any purpose,
+ *  including commercial applications, and to alter it and redistribute
+ *  it freely, subject to the following restrictions:
+ *
+ *  1. The origin of this software must not be misrepresented;
+ *  you must not claim that you wrote the original software.
+ *  If you use this software in a product, an acknowledgment
+ *  in the product documentation would be appreciated but
+ *  is not required.
+ *
+ *  2. Altered source versions must be plainly marked as such,
+ *  and must not be misrepresented as being the original software.
+ *
+ *  3. This notice may not be removed or altered from any
+ *  source distribution.
+ *
+ */
 #ifdef __AVX2__
-    #include <immintrin.h>
-#endif
+#include "DP_AVX2_OMP_u2.hpp"
+#include <immintrin.h>
 
 DP_AVX2_OMP_u2::DP_AVX2_OMP_u2() : Convergence("DP_AVX2_OMP_u2")
 {
@@ -31,7 +53,6 @@ DP_AVX2_OMP_u2::~DP_AVX2_OMP_u2()
 
 void DP_AVX2_OMP_u2::updateImage(const long double _zoom, const long double _offsetX, const long double _offsetY, const int IMAGE_WIDTH, const int IMAGE_HEIGHT, float* ptr)
 {
-#ifdef __AVX2__
     const double offsetX = _offsetX;
     const double offsetY = _offsetY;
     const double zoom    = _zoom;
@@ -64,7 +85,7 @@ void DP_AVX2_OMP_u2::updateImage(const long double _zoom, const long double _off
                 __m256d v_zImag_1 = v_startImag;
                 __m256d v_zImag_2 = v_startImag;
 
-                for (unsigned int counter = 0; counter < max_iters; counter++) {
+                for (int counter = 0; counter < max_iters; counter++) {
                     const __m256d v_r2_1 = _mm256_mul_pd(v_zReal_1, v_zReal_1);
                     const __m256d v_r2_2 = _mm256_mul_pd(v_zReal_2, v_zReal_2);
 
@@ -101,15 +122,11 @@ void DP_AVX2_OMP_u2::updateImage(const long double _zoom, const long double _off
             }
         }
     }
-#endif
 }
 
 
 bool DP_AVX2_OMP_u2::is_valid()
 {
-#ifdef __AVX2__
     return true;
-#else
-    return false;
-#endif
 }
+#endif

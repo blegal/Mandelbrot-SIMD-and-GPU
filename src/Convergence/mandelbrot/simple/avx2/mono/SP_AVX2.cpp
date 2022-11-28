@@ -1,8 +1,30 @@
-#include "SP_AVX2.hpp"
-
+/*
+ *  Copyright (c) 2026-... Bertrand LE GAL
+ *
+ *  This software is provided 'as-is', without any express or
+ *  implied warranty. In no event will the authors be held
+ *  liable for any damages arising from the use of this software.
+ *
+ *  Permission is granted to anyone to use this software for any purpose,
+ *  including commercial applications, and to alter it and redistribute
+ *  it freely, subject to the following restrictions:
+ *
+ *  1. The origin of this software must not be misrepresented;
+ *  you must not claim that you wrote the original software.
+ *  If you use this software in a product, an acknowledgment
+ *  in the product documentation would be appreciated but
+ *  is not required.
+ *
+ *  2. Altered source versions must be plainly marked as such,
+ *  and must not be misrepresented as being the original software.
+ *
+ *  3. This notice may not be removed or altered from any
+ *  source distribution.
+ *
+ */
 #ifdef __AVX2__
+#include "SP_AVX2.hpp"
 #include <immintrin.h>
-#endif
 
 #define SPP_CONV_STEP 16
 
@@ -35,8 +57,6 @@ SP_AVX2::~SP_AVX2() {
 
 void SP_AVX2::updateImage(const long double _zoom, const long double _offsetX, const long double _offsetY, const int IMAGE_WIDTH, const int IMAGE_HEIGHT, float* ptr)
 {
-#ifdef __AVX2__
-
     const float f_zoom    = (float)_zoom;
     const float f_offsetX = (float)_offsetX;
     const float f_offsetY = (float)_offsetY;
@@ -67,7 +87,7 @@ void SP_AVX2::updateImage(const long double _zoom, const long double _offsetX, c
                 __m256 v_zReal = v_startReal;
                 __m256 v_zImag = v_startImag;
 
-                for (unsigned int counter = 0; counter < max_iters; counter++) {
+                for (int counter = 0; counter < max_iters; counter++) {
                     __m256 v_r2 = _mm256_mul_ps(v_zReal, v_zReal);
                     __m256 v_i2 = _mm256_mul_ps(v_zImag, v_zImag);
 
@@ -91,15 +111,11 @@ void SP_AVX2::updateImage(const long double _zoom, const long double _offsetX, c
                 v_startReal = _mm256_add_ps(v_startReal, _mm256_set1_ps(f_zoom * SPP_CONV_STEP));
             }
         }
-#endif
 }
 
 
 bool SP_AVX2::is_valid()
 {
-#ifdef __AVX2__
     return true;
-#else
-    return false;
-#endif
 }
+#endif
