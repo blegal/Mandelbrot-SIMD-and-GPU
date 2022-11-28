@@ -2,6 +2,7 @@
 #include "Color/ColorSmooth/ColorSmooth.hpp"
 #include <stdio.h>
 
+#if 0
 /******************************/
 /*         CUDA double        */
 /******************************/
@@ -166,26 +167,26 @@ void compute_cuda_d2_wp (int nthreads, double zoom, double offsetX, double offse
     IMAGE_WIDTH, IMAGE_HEIGHT, device_value);
 }
 
-
+#endif
 
 /******************************/
 /*        CUDA SIMPLE         */
 /******************************/
 
-__device__ unsigned short process_sp(
-    const float startReal,
-    const float startImag,
-    unsigned short max_iters
+__device__ unsigned short process_dp(
+    const double startReal,
+    const double startImag,
+          int    max_iters
   )
 {
-  float zReal = startReal;
-  float zImag = startImag;
+  double zReal = startReal;
+  double zImag = startImag;
 
   for(int counter = 0; counter < max_iters; counter++)
   {
     
-    float r2 = zReal * zReal;
-    float i2 = zImag * zImag;
+    double r2 = zReal * zReal;
+    double i2 = zImag * zImag;
     
     zImag = 2.0f * zReal * zImag + startImag;
     zReal = r2 - i2 + startReal;
@@ -199,18 +200,15 @@ __device__ unsigned short process_sp(
 }
 
 
-
-
-
 __global__ void mandelbrot_sp
     (
-              int*  v_dat,    // le pointeur sur le tableau de sortie
-        const float zoom,     // Le facteur de zoom
-        const float offsetX,  // la coordonnée X
-        const float offsetY,  // la coordonnée Y
-        const int   width,    // la largeur de la fenetre
-        const int   height,   // la hauteur de la fenetre
-        const int   max_iters // le nombre maximum d'itération
+              int*   v_dat,    // le pointeur sur le tableau de sortie
+        const double zoom,     // Le facteur de zoom
+        const double offsetX,  // la coordonnée X
+        const double offsetY,  // la coordonnée Y
+        const int    width,    // la largeur de la fenetre
+        const int    height,   // la hauteur de la fenetre
+        const int    max_iters // le nombre maximum d'itération
     )
 {
 
@@ -219,8 +217,8 @@ __global__ void mandelbrot_sp
 
     if ( (x < width) && (y < height) )
     {
-        const float imag  = offsetY  + (y * zoom);
-        const float real  = offsetX + (x * zoom);
-        v_dat[y*width +x] = process_sp(real, imag, max_iters);
+        const double imag  = offsetY  + (y * zoom);
+        const double real  = offsetX + (x * zoom);
+        v_dat[y * width + x] = process_dp(real, imag, max_iters);
 	}
 }

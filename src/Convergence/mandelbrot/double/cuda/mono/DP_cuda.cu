@@ -13,7 +13,7 @@
  *
  *
  */
-#include "SP_cuda.hpp"
+#include "DP_cuda.hpp"
 #include <iostream>
 /*
  *
@@ -22,10 +22,10 @@
  *
  *
  */
-SP_cuda::SP_cuda() : Convergence("SP_CUDA")
+DP_cuda::DP_cuda() : Convergence("DP_cuda")
 {
     fractal     = "mandelbrot";
-    dataFormat  = "float";
+    dataFormat  = "double";
     modeSIMD    = "none";
     modeOPENMP  = "disable";
     OTHER       = "CUDA";
@@ -52,12 +52,12 @@ SP_cuda::SP_cuda() : Convergence("SP_CUDA")
  *
  *
  */
-SP_cuda::SP_cuda(ColorMap* _colors, int _max_iters) : Convergence("SP_CUDA") {
+DP_cuda::DP_cuda(ColorMap* _colors, int _max_iters) : Convergence("DP_cuda") {
     colors      = _colors;
     max_iters   = _max_iters;
 
     fractal     = "mandelbrot";
-    dataFormat  = "float";
+    dataFormat  = "double";
     modeSIMD    = "none";
     modeOPENMP  = "disable";
     OTHER       = "CUDA";
@@ -85,7 +85,7 @@ SP_cuda::SP_cuda(ColorMap* _colors, int _max_iters) : Convergence("SP_CUDA") {
  *
  *
  */
-SP_cuda::~SP_cuda( )
+DP_cuda::~DP_cuda( )
 {
     if( gpu_mBuffer != nullptr)
         cudaFree( gpu_mBuffer );
@@ -102,13 +102,13 @@ SP_cuda::~SP_cuda( )
  */
 extern __global__  void mandelbrot_sp
 (
-          int*  v_dat,    // le pointeur sur le tableau de sortie
-    const float zoom,     // Le facteur de zoom
-    const float offsetX,  // la coordonnée X
-    const float offsetY,  // la coordonnée Y
-    const int   width,    // la largeur de la fenetre
-    const int   height,   // la hauteur de la fenetre
-    const int   max_iters // le nombre maximum d'itération
+          int*   v_dat,    // le pointeur sur le tableau de sortie
+    const double zoom,     // Le facteur de zoom
+    const double offsetX,  // la coordonnée X
+    const double offsetY,  // la coordonnée Y
+    const int    width,    // la largeur de la fenetre
+    const int    height,   // la hauteur de la fenetre
+    const int    max_iters // le nombre maximum d'itération
 );
 
 /*
@@ -118,7 +118,7 @@ extern __global__  void mandelbrot_sp
  *
  *
  */
-void SP_cuda::updateImage(
+void DP_cuda::updateImage(
         const long double _zoom,
         const long double _offsetX,
         const long double _offsetY,
@@ -194,7 +194,7 @@ void SP_cuda::updateImage(
  *
  *
  */
-bool SP_cuda::is_valid()
+bool DP_cuda::is_valid()
 {
     return true;
 }

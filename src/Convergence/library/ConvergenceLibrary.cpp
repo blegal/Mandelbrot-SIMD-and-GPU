@@ -80,7 +80,9 @@
 ////////      GPU VERSIONS (FLOAT and double)      ////////
 
 #include "Convergence/mandelbrot/simple/metal/mono/SP_metal.hpp"
+
 #include "Convergence/mandelbrot/simple/cuda/mono/SP_cuda.hpp"
+#include "Convergence/mandelbrot/double/cuda/mono/DP_cuda.hpp"
 
 ////////      FLOAT POINT      ////////
 
@@ -183,10 +185,10 @@ ConvergenceLibrary::ConvergenceLibrary()
     list.push_back( new SP_metal(nullptr, 255) );
 #endif
 
-
-#if defined(__CUDACC__)
+#if defined(_ENABLE_CUDA_)
     list.push_back( new SP_cuda(nullptr, 255) );
 #endif
+
 
     //
     //////////////////////////////////////////////////////////////////////
@@ -218,6 +220,10 @@ ConvergenceLibrary::ConvergenceLibrary()
 
     list.push_back( new DP_AVX512      (nullptr, 255) );
     list.push_back( new DP_AVX512_OMP  (nullptr, 255) );
+
+#if defined(_ENABLE_CUDA_)
+    list.push_back( new DP_cuda(nullptr, 255) );
+#endif
 
     //
     //////////////////////////////////////////////////////////////////////

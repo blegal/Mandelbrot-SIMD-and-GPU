@@ -1,6 +1,6 @@
 #if defined(_ENABLE_CUDA_) || defined(__NVCC__) || defined(__CUDACC__)
-#ifndef _SP_cuda_
-#define _SP_cuda_
+#ifndef _DP_cuda_
+#define _DP_cuda_
 /*
  *
  *
@@ -16,13 +16,13 @@
  *
  *
  */
-class SP_cuda : public Convergence {
+class DP_cuda : public Convergence {
 public:
-    SP_cuda();
+    DP_cuda();
 
-    SP_cuda(ColorMap* _colors, int _max_iters);
+    DP_cuda(ColorMap* _colors, int _max_iters);
 
-    ~SP_cuda();
+    ~DP_cuda();
 
     virtual void updateImage(const long double _zoom, const long double _offsetX, const long double _offsetY, const int IMAGE_WIDTH, const int IMAGE_HEIGHT, float* ptr);
 
@@ -35,9 +35,9 @@ private:
     int32_t* gpu_mBuffer;
 
     int32_t* host_mBuffer;
-    float    host_mZoom;
-    float    host_mOffsetX;
-    float    host_mOffsetY;
+    double   host_mZoom;
+    double   host_mOffsetX;
+    double   host_mOffsetY;
     int32_t  host_mWidth;
     int32_t  host_mHeight;
     int32_t  host_mIters;
