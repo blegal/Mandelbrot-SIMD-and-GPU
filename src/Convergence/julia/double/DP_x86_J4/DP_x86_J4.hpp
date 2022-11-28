@@ -25,26 +25,11 @@
 #ifndef _DP_x86_J4_
 #define _DP_x86_J4_
 
-#include <SFML/Graphics.hpp>
-#include <array>
-#include <vector>
-#include <thread>
+#include "../template/DP_x86_Julia.hpp"
 
-#include "Convergence/Convergence.hpp"
-
-class DP_x86_J4 : public Convergence {
-
+class DP_x86_J4 : public DP_x86_Julia {
 public:
-
-    DP_x86_J4();
-
-    DP_x86_J4(ColorMap* _colors, int _max_iters);
-
-    ~DP_x86_J4( );
-
-    virtual void updateImage(const long double _zoom, const long double _offsetX, const long double _offsetY, const int IMAGE_WIDTH, const int IMAGE_HEIGHT, float* ptr);
-
-    virtual bool is_valid();
+    DP_x86_J4(ColorMap* _colors, const int _max_iters);
 };
 
 #endif

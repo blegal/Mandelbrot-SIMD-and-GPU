@@ -1,3 +1,4 @@
+#if defined(__CUDACC__)
 #ifndef _SP_cuda_
 #define _SP_cuda_
 /*
@@ -41,5 +42,5 @@ private:
     int32_t  host_mHeight;
     int32_t  host_mIters;
 };
-
+#endif
 #endif

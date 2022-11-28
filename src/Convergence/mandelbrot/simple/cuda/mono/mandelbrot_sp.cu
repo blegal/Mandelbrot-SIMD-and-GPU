@@ -1,3 +1,13 @@
+<<<<<<< Updated upstream:src/Convergence/mandelbrot/simple/cuda/mono/mandelbrot_sp.cu
+=======
+#include "cuda.h"
+#include "Color/ColorSmooth/ColorSmooth.hpp"
+#include <stdio.h>
+
+/******************************/
+/*         CUDA double        */
+/******************************/
+>>>>>>> Stashed changes:src/kernel.cu
 
 __device__ unsigned short process_cuda_d(const double startReal, const double startImag, unsigned short max_iters)  {
   double zReal = startReal;
@@ -106,7 +116,7 @@ void compute_cuda_d2(int nthreads, double zoom, double offsetX, double offsetY, 
 
 
 /******************************/
-/*CUDA DOUBLE WITHOUT PROCESS */
+/*CUDA double WITHOUT PROCESS */
 /******************************/
 
 __global__ void kernel_compute_cuda_d2_wp(double zoom, double offsetX, double offsetY, unsigned int max_iters,
