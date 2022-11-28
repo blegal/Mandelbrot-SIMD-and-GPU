@@ -1,12 +1,4 @@
 /*
-See LICENSE-original.txt for this sample’s licensing information.
-
-Abstract:
-A shader that adds two arrays of floats.
-*/
-
-
-/*
  *  Copyright (c) 2026-... Bertrand LE GAL
  *
  *  This software is provided 'as-is', without any express or
@@ -30,6 +22,14 @@ A shader that adds two arrays of floats.
  *  source distribution.
  *
  */
+/*
+See LICENSE-original.txt for this sample’s licensing information.
+
+Abstract:
+A shader that adds two arrays of floats.
+*/
+
+
 #include <metal_stdlib>
 using namespace metal;
 /*
@@ -85,7 +85,7 @@ kernel void mandelbrot_sp(
         zImag = 2.0f * zReal * zImag + startImag;
         zReal = r2 - i2 + startReal;
 
-#if 0
+#if 1
         if ( (r2 + i2) > 4.0f)
         {
             break;

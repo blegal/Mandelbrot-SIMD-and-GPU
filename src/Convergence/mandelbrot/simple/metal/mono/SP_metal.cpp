@@ -23,6 +23,13 @@
  *
  */
 #if defined(__APPLE__)
+/*
+ *
+ *
+ *##############################################################################
+ *
+ *
+ */
 #define NS_PRIVATE_IMPLEMENTATION
 #define CA_PRIVATE_IMPLEMENTATION
 #define MTL_PRIVATE_IMPLEMENTATION
@@ -169,7 +176,7 @@ void SP_metal::updateImage(
     MTL::CommandBuffer *commandBuffer = _mCommandQueue->commandBuffer();
     if (commandBuffer == nullptr)
     {
-        std::cout << "Failed to create a command buffer." << std::endl;
+        std::cout << "(EE) Failed to create a command buffer." << std::endl;
         exit( EXIT_FAILURE );
     }
 
@@ -180,7 +187,7 @@ void SP_metal::updateImage(
     MTL::ComputeCommandEncoder *computeEncoder = commandBuffer->computeCommandEncoder();
     if (computeEncoder == nullptr)
     {
-        std::cout << "Failed to create a compute encoder." << std::endl;
+        std::cout << "(EE) Failed to create a compute encoder." << std::endl;
         exit( EXIT_FAILURE );
     }
 
@@ -189,6 +196,11 @@ void SP_metal::updateImage(
 
     const long double corner_x = _offsetX - (IMAGE_WIDTH  / 2.0f) * _zoom;
     const long double corner_y = _offsetY - (IMAGE_HEIGHT / 2.0f) * _zoom;
+
+    printf("corner_x  = %f\n", corner_x);
+    printf("corner_y  = %f\n", corner_y);
+    printf("zoom      = %f\n", (float)_zoom);
+    printf("max_iters = %d\n", max_iters);
 
     *((float*   )_mZoom   ->contents()) = _zoom;
     *((float*   )_mOffsetX->contents()) = corner_x;
@@ -205,31 +217,11 @@ void SP_metal::updateImage(
     computeEncoder->setBuffer(_mHeight,  0, 5);
     computeEncoder->setBuffer(_mIters,   0, 6);
 
-#if 0
     const int w = _mAddFunctionPSO->threadExecutionWidth();
     const int h = _mAddFunctionPSO->maxTotalThreadsPerThreadgroup() / w;
-    MTL::Size threadsPerThreadgroup = MTL::Size::Make(w, h, 1);
     MTL::Size threadsPerGrid        = MTL::Size::Make(IMAGE_WIDTH, IMAGE_HEIGHT, 1);
+    MTL::Size threadsPerThreadgroup = MTL::Size::Make(w, h, 1);
     computeEncoder->dispatchThreads(threadsPerGrid, threadsPerThreadgroup);
-#else
-
-    MTL::Size gridSize = MTL::Size::Make(IMAGE_WIDTH, IMAGE_HEIGHT, 1);
-
-    //
-    // Calculate a threadgroup size.
-    //
-    int nElements = IMAGE_WIDTH * IMAGE_HEIGHT;
-    NS::UInteger threadGroupSize = _mAddFunctionPSO->maxTotalThreadsPerThreadgroup();
-    if (threadGroupSize > nElements)
-    {
-        threadGroupSize = nElements;
-    }
-
-    MTL::Size threadgroupSize = MTL::Size::Make(threadGroupSize, threadGroupSize, 1);
-
-    // Encode the compute command.
-    computeEncoder->dispatchThreads(gridSize, threadgroupSize);
-#endif
 
     // End the compute pass.
     computeEncoder->endEncoding();
