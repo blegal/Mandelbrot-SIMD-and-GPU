@@ -5,8 +5,8 @@ cmake_minimum_required(VERSION 3.7)
 #
 # To be enable for target with NVIDIA GPUs
 #
-project(cmake_and_cuda LANGUAGES CXX CUDA)
-enable_language(CUDA)
+#project(cmake_and_cuda LANGUAGES CXX CUDA)
+#enable_language(CUDA)
 
 ##################################################################
 
@@ -31,20 +31,20 @@ SET (CMAKE_CXX_STANDARD 17)
 # APPLE SILICON FLAGS
 #
 
-#SET (CMAKE_C_COMPILER   /opt/homebrew/Cellar/llvm/15.0.5/bin/clang)
-#SET (CMAKE_CXX_COMPILER /opt/homebrew/Cellar/llvm/15.0.5/bin/clang++)
+SET (CMAKE_C_COMPILER   /opt/homebrew/Cellar/llvm/15.0.5/bin/clang)
+SET (CMAKE_CXX_COMPILER /opt/homebrew/Cellar/llvm/15.0.5/bin/clang++)
 
-#SET (CMAKE_CXX_FLAGS "")
-#SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast -g0 -Wall -mcpu=native -mtune=native -fopenmp -I/opt/homebrew/opt/sfml/include")
+SET (CMAKE_CXX_FLAGS "")
+SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast -g0 -Wall -mcpu=native -mtune=native -fopenmp -I/opt/homebrew/opt/sfml/include")
 
-#SET (CMAKE_EXE_LINKER_FLAGS "-lm -fopenmp")
+SET (CMAKE_EXE_LINKER_FLAGS "-lm -fopenmp")
 
-#SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L/opt/homebrew/opt/sfml/lib -L/opt/homebrew/lib")
+SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L/opt/homebrew/opt/sfml/lib -L/opt/homebrew/lib")
 
-#SET (CMAKE_CXX_FLAGS        "${CMAKE_CXX_FLAGS}        -fno-objc-arc -stdlib=libc++")
-#SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework Metal")
-#SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework Foundation")
-#SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework MetalKit")
+SET (CMAKE_CXX_FLAGS        "${CMAKE_CXX_FLAGS}        -fno-objc-arc -stdlib=libc++")
+SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework Metal")
+SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework Foundation")
+SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework MetalKit")
 
 
 #
@@ -54,9 +54,9 @@ SET (CMAKE_CXX_STANDARD 17)
 #SET (CMAKE_C_COMPILER   /usr/local/opt/llvm/bin/clang)
 #SET (CMAKE_CXX_COMPILER /usr/local/opt/llvm/bin/clang++)
 
-SET (CMAKE_CXX_FLAGS "")
-SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast -g0 -Wall -mcpu=native -mtune=native -fopenmp")
-SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -I. -L/usr/local/lib")
+#SET (CMAKE_CXX_FLAGS "")
+#SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast -g0 -Wall -mcpu=native -mtune=native -fopenmp")
+#SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -I. -L/usr/local/lib")
 
 
 
