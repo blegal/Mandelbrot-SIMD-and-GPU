@@ -197,11 +197,6 @@ void SP_metal::updateImage(
     const long double corner_x = _offsetX - (IMAGE_WIDTH  / 2.0f) * _zoom;
     const long double corner_y = _offsetY - (IMAGE_HEIGHT / 2.0f) * _zoom;
 
-    printf("corner_x  = %f\n", corner_x);
-    printf("corner_y  = %f\n", corner_y);
-    printf("zoom      = %f\n", (float)_zoom);
-    printf("max_iters = %d\n", max_iters);
-
     *((float*   )_mZoom   ->contents()) = _zoom;
     *((float*   )_mOffsetX->contents()) = corner_x;
     *((float*   )_mOffsetY->contents()) = corner_y;
