@@ -25,7 +25,7 @@
 #ifndef _ColorMap_
 #define _ColorMap_
 
-#include <SFML/Graphics.hpp>
+#include "Utils/Image.hpp"
 #include "ColorUtils.hpp"
 #include <array>
 #include <iostream>
@@ -43,14 +43,14 @@ public:
 
     virtual void setIters(const int max_iters);
 
-    virtual sf::Color getColor(const int iterations);
+    virtual gfx::Color getColor(const int iterations);
 
     virtual std::string name();
 
-    virtual void colorize(const int IMAGE_WIDTH, const int IMAGE_HEIGHT, float* ptr, sf::Image& image);
+    virtual void colorize(const int IMAGE_WIDTH, const int IMAGE_HEIGHT, float* ptr, gfx::Image& image);
 
 protected:
-    std::array<sf::Color, 65536> colors;
+    std::array<gfx::Color, 65536> colors;
 
     int MAX;
 

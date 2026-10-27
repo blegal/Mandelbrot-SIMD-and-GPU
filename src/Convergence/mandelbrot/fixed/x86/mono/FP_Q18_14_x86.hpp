@@ -25,7 +25,7 @@
 #ifndef _FP_Q18_14_x86_
 #define _FP_Q18_14_x86_
 
-#include <SFML/Graphics.hpp>
+#include "Utils/Image.hpp"
 #include "Convergence/Convergence.hpp"
 #include "Convergence/mandelbrot/fixed/fixed_point.hpp"
 

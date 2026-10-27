@@ -51,7 +51,7 @@ QP_x86::~QP_x86( ){
 }
 
 
-void QP_x86::updateImage(const long double _zoom, const long double _offsetX, const long double _offsetY, const int IMAGE_WIDTH, const int IMAGE_HEIGHT, sf::Image& image)
+void QP_x86::updateImage(const long double _zoom, const long double _offsetX, const long double _offsetY, const int IMAGE_WIDTH, const int IMAGE_HEIGHT, gfx::Image& image)
 {
     const long double offsetX = _offsetX;
     const long double offsetY = _offsetY;

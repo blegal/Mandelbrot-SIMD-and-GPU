@@ -209,9 +209,9 @@ void ColorSetCandy::setIters(int max_iters)
         const uint32_t r = (v      & 0xF) << 4;
         const uint32_t g = (v >> 4 & 0xF) << 4;
         const uint32_t b = (v >> 8 & 0xF) << 4;
-        colors[i]        = sf::Color(r, g, b);
+        colors[i]        = gfx::Color(r, g, b);
     }
-    colors[MAX-1] = sf::Color(0, 0, 0);
+    colors[MAX-1] = gfx::Color(0, 0, 0);
 }
 
 

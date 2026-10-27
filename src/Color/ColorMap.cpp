@@ -23,6 +23,7 @@
  *
  */
 #include "ColorMap.hpp"
+#include <algorithm>
 
 
 ColorMap::ColorMap(std::string str)
@@ -44,7 +45,7 @@ void ColorMap::setIters(const int max_iters)
 }
 
 
-sf::Color ColorMap::getColor(const int iterations)
+gfx::Color ColorMap::getColor(const int iterations)
 {
     assert( iterations <= MAX );
     return colors[iterations];
@@ -61,7 +62,7 @@ void ColorMap::colorize(
         const int IMAGE_WIDTH,
         const int IMAGE_HEIGHT,
               float* ptr,
-        sf::Image& image)
+        gfx::Image& image)
 {
 
 #if 0
@@ -88,12 +89,14 @@ void ColorMap::colorize(
 #endif
 
 
+#pragma omp parallel for
     for(int32_t y = 0; y < IMAGE_HEIGHT; y += 1 )
     {
+        const float* line = ptr + y * IMAGE_WIDTH;
         for(int32_t x = 0; x < IMAGE_WIDTH; x += 1 )
         {
-            const uint32_t value = (*ptr++);
-            const sf::Color c    = getColor( value );
+            const uint32_t value = std::min<uint32_t>(line[x], MAX - 1); // les points de l'ensemble => couleur de MAX-1
+            const gfx::Color c   = getColor( value );
             image.setPixel(x, y, c);
         }
     }

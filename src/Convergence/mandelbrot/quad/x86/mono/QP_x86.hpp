@@ -25,7 +25,7 @@
 #ifndef _QP_x86_
 #define _QP_x86_
 
-#include <SFML/Graphics.hpp>
+#include "Utils/Image.hpp"
 #include <vector>
 
 #include "Convergence/Convergence.hpp"
@@ -40,7 +40,7 @@ public:
 
   ~QP_x86( );
 
-    virtual void updateImage(const long double _zoom, const long double _offsetX, const long double _offsetY, const int IMAGE_WIDTH, const int IMAGE_HEIGHT, sf::Image& image);
+    virtual void updateImage(const long double _zoom, const long double _offsetX, const long double _offsetY, const int IMAGE_WIDTH, const int IMAGE_HEIGHT, gfx::Image& image);
     virtual void updateImage(const long double _zoom, const long double _offsetX, const long double _offsetY, const int IMAGE_WIDTH, const int IMAGE_HEIGHT, float* ptr);
 
     virtual bool is_valid();

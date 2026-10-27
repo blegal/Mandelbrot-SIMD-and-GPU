@@ -37,8 +37,8 @@ void ColorHSVLoop::setIters(int max_iters)
     for (int i=0; i < MAX; ++i) {
         colors[i] = ColorUtils::HSVToRGB((i)%MAX, 230, 255);
     }
-    colors[MAX-1] = sf::Color(0, 0, 0);
-//    colors[MAX] = sf::Color(0, 0, 0);
+    colors[MAX-1] = gfx::Color(0, 0, 0);
+//    colors[MAX] = gfx::Color(0, 0, 0);
 }
 
 

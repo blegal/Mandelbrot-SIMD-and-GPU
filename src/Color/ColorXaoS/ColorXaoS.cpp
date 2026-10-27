@@ -87,7 +87,7 @@ void ColorXaoS::setIters(int max_iters)
         const uint8_t bs = (segments[(i + 1) % setsegments % nsegments][2] - b) / segmentsize;
 
         for (y = 0; y < segmentsize; y++) {
-            colors[i] = sf::Color(r, g, b);
+            colors[i] = gfx::Color(r, g, b);
             r += rs;
             g += gs;
             b += bs;
@@ -104,7 +104,7 @@ void ColorXaoS::setIters(int max_iters)
         const int r   = (int)std::round( 9.f * (1.0f-t) * t * t * t               * 255.0f);
         const int g   = (int)std::round(15.f * (1.0f-t) * (1.0f-t) * t * t        * 255.0f);
         const int b   = (int)std::round(8.5f * (1.0f-t) * (1.0f-t) * (1.0f-t) * t * 255.0f);
-        colors[i] = sf::Color(r, g, b);
+        colors[i] = gfx::Color(r, g, b);
     }
     */
 }

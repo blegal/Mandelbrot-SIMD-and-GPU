@@ -55,83 +55,71 @@ DP_NEON::~DP_NEON()
 }
 
 
-inline int _arm_movemask_ps(const uint32x4_t a)
+inline int _arm_movemask_pd(const uint64x2_t a)
 {
-    uint32x4_t input = a;
-#if defined(__aarch64__)
-    static const int32x4_t shift = {0, 1, 2, 3};
-    uint32x4_t tmp = vshrq_n_u32(input, 31);
-    return vaddvq_u32(vshlq_u32(tmp, shift));
-#else
-    uint64x2_t high_bits = vreinterpretq_u64_u32(vshrq_n_u32(input, 31));
-    uint8x16_t paired = vreinterpretq_u8_u64(vsraq_n_u64(high_bits, high_bits, 31));
-    return vgetq_lane_u8(paired, 0) | (vgetq_lane_u8(paired, 8) << 2);
-#endif
+    return (int)( (vgetq_lane_u64(a, 0) >> 63) | ((vgetq_lane_u64(a, 1) >> 63) << 1) );
 }
 
 
-void DP_NEON::updateImage(const long double _zoom, const long double _offsetX, const long double _offsetY,
-                          const int IMAGE_WIDTH, const int IMAGE_HEIGHT, float *ptr) {
-    const float f_zoom    = (float)_zoom;
-    const float f_offsetX = (float)_offsetX;
-    const float f_offsetY = (float)_offsetY;
+void DP_NEON::updateImage(const long double _zoom, const long double _offsetX, const long double _offsetY, const int IMAGE_WIDTH, const int IMAGE_HEIGHT, float* ptr)
+{
+    const double f_zoom    = (double)_zoom;
+    const double f_offsetX = (double)_offsetX;
+    const double f_offsetY = (double)_offsetY;
 
     // consts :
-    const float32x4_t v_4_0f = vdupq_n_f32(4.0f);
-    const float32x4_t v_2_0f = vdupq_n_f32(2.0f);
-    const float32x4_t v_1_0f = vdupq_n_f32(1.0f);
+    const float64x2_t v_4_0f = vdupq_n_f64(4.0f);
+    const float64x2_t v_2_0f = vdupq_n_f64(2.0f);
+    const float64x2_t v_1_0f = vdupq_n_f64(1.0f);
 
-    const float  startR  = f_offsetX - IMAGE_WIDTH  / 2.0f * f_zoom;
+    const double startR  = f_offsetX - IMAGE_WIDTH  / 2.0 * f_zoom;
 
-    const float /*ALIGN_STRUCT(16)*/ data[4] = {
-            startR,
-            startR + f_zoom,
-            startR + f_zoom * 2.0f,
-            startR + f_zoom * 3.0f};
+    const double data[2] = {startR, startR + f_zoom};
 
-    const int32_t SP_CONV_STEP     = sizeof(float32x4_t)/sizeof(float);
-    const float32x4_t startReal    = vld1q_f32(data);
-    const float32x4_t XStep        = vdupq_n_f32(f_zoom * SP_CONV_STEP);
+    const int32_t SP_CONV_STEP     = sizeof(float64x2_t)/sizeof(double);
+    const float64x2_t startReal    = vld1q_f64(data);
+    const float64x2_t XStep        = vdupq_n_f64(f_zoom * SP_CONV_STEP);
 
-    for (uint32_t y = 0; y < IMAGE_HEIGHT; y++)
     {
+        for (uint32_t y = 0; y < IMAGE_HEIGHT; y++) {
 
-        const float startImag = f_offsetY - IMAGE_HEIGHT / 2.0f * f_zoom + (y * f_zoom);
+            const double startImag = f_offsetY - IMAGE_HEIGHT / 2.0f * f_zoom + (y * f_zoom);
 
-        const float32x4_t v_startImag = vdupq_n_f32( startImag );
-              float32x4_t v_startReal = startReal;
+            const float64x2_t v_startImag = vdupq_n_f64( startImag );
+                  float64x2_t v_startReal = startReal;
 
-        float* ptr_o = ptr + y * IMAGE_WIDTH;
+            float* ptr_o = ptr + y * IMAGE_WIDTH;
 
-        for (uint32_t x = 0; x < IMAGE_WIDTH; x += SP_CONV_STEP)
-        {
-            float32x4_t v_value = vdupq_n_f32(0);
-            float32x4_t v_zReal = v_startReal;
-            float32x4_t v_zImag = v_startImag;
+            for (uint32_t x = 0; x < IMAGE_WIDTH; x += SP_CONV_STEP) {
+                float64x2_t v_value = vdupq_n_f64(0);
+                float64x2_t v_zReal = v_startReal;
+                float64x2_t v_zImag = v_startImag;
 
-            for (uint32_t counter = 0; counter < max_iters; counter++) {
-                const float32x4_t v_r2 = vmulq_f32(v_zReal, v_zReal);
-                const float32x4_t v_i2 = vmulq_f32(v_zImag, v_zImag);
+                for (uint32_t counter = 0; counter < max_iters; counter++) {
+                    const float64x2_t v_r2 = vmulq_f64(v_zReal, v_zReal);
+                    const float64x2_t v_i2 = vmulq_f64(v_zImag, v_zImag);
 
-                v_zImag = vaddq_f32(vmulq_f32(v_2_0f, vmulq_f32(v_zReal, v_zImag)), v_startImag);
-                v_zReal = vaddq_f32(vsubq_f32(v_r2, v_i2), v_startReal);
+                    v_zImag = vaddq_f64(vmulq_f64(v_2_0f, vmulq_f64(v_zReal, v_zImag)), v_startImag);
+                    v_zReal = vaddq_f64(vsubq_f64(v_r2, v_i2), v_startReal);
 
-                const float32x4_t v_r2_plus_i2 = vaddq_f32(v_r2, v_i2);
-                const uint32x4_t  v_cmp_res    = vcltq_f32(v_r2_plus_i2, v_4_0f);
-                const float32x4_t u_value      = vaddq_f32(v_value, v_1_0f);
-                v_value = vbslq_f32(v_cmp_res, u_value, v_value); // si r2+i2 < 4 value++
+                    const float64x2_t v_r2_plus_i2  = vaddq_f64(v_r2, v_i2);
+                    const uint64x2_t  v_cmp_res     = vcltq_f64(v_r2_plus_i2, v_4_0f);
+                    const float64x2_t u_value = vaddq_f64(v_value, v_1_0f);
+                    v_value = vbslq_f64(v_cmp_res, u_value, v_value); // si r2+i2 < 4 value++
 
-                const uint32_t res = _arm_movemask_ps(v_cmp_res);
-                if (res == 0)
-                {
-                    break;
+                    const uint32_t res = _arm_movemask_pd(v_cmp_res);
+                    if (res == 0)
+                    {
+                        break;
+                    }
                 }
+
+                double buffer[2];
+                vst1q_f64(buffer, v_value);
+                (*ptr_o++) = (float)buffer[0];
+                (*ptr_o++) = (float)buffer[1];
+                v_startReal = vaddq_f64(v_startReal, XStep);
             }
-
-            vst1q_f32(ptr_o, v_value);
-            ptr_o += (sizeof(float32x4_t)/sizeof(float));
-
-            v_startReal = vaddq_f32(v_startReal, XStep);
         }
     }
 }

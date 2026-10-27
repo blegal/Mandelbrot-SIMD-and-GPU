@@ -64,7 +64,7 @@ uint32_t QP_x86_OMP::process(const long double startReal, const long double star
 }
 
 
-void QP_x86_OMP::updateImage(const long double _zoom, const long double _offsetX, const long double _offsetY, const int IMAGE_WIDTH, const int IMAGE_HEIGHT, sf::Image& image) {
+void QP_x86_OMP::updateImage(const long double _zoom, const long double _offsetX, const long double _offsetY, const int IMAGE_WIDTH, const int IMAGE_HEIGHT, gfx::Image& image) {
 
     const long double offsetX = _offsetX;
     const long double offsetY = _offsetY;

@@ -25,7 +25,7 @@
 #ifndef _DP_x86_
 #define _DP_x86_
 
-#include <SFML/Graphics.hpp>
+#include "Utils/Image.hpp"
 #include "Convergence/Convergence.hpp"
 
 class DP_x86 : public Convergence {

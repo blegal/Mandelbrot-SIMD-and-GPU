@@ -26,16 +26,16 @@
 #include <chrono>
 
 Mandelbrot::Mandelbrot(const int32_t Width, const int32_t Height, const int32_t iterations) {
-    c         = nullptr;
-    colors    = nullptr;
+    c           = nullptr;
+    colors      = nullptr;
 
-    f_width    = Width;
-    f_height   = Height;
-    iters      = iterations;
+    f_width     = Width;
+    f_height    = Height;
+    iters       = iterations;
+    central_dot = false;
 
     const uint32_t nPixels = Width * Height;
-    iter_icount = new uint32_t[nPixels];
-    iter_fcount = new float   [nPixels];
+    iter_fcount = new float[nPixels];
 
     allocRessources( );
 }
@@ -44,22 +44,18 @@ Mandelbrot::Mandelbrot(const int32_t Width, const int32_t Height, const int32_t 
 Mandelbrot::~Mandelbrot()
 {
     freeRessources( );
-    delete[] iter_icount;
     delete[] iter_fcount;
 }
 
 
+//
+// Les palettes et les moteurs appartiennent aux bibliotheques (library et
+// converge) : on se contente ici de recuperer l'element courant.
+//
 void Mandelbrot::allocRessources( ){
-
-//    if( colors == nullptr )
-//        colors = library.get( params->ColorMapMode() );
-//    else
     colors = library.get();
     colors->setIters( iters );
 
-//    if( c == nullptr )
-//        c = converge.get( params->ConvergenceType() );
-//    else
     c = converge.get();
     c->setIters( iters  );
     c->setColor( colors );
@@ -68,8 +64,8 @@ void Mandelbrot::allocRessources( ){
 
 void Mandelbrot::freeRessources( )
 {
-//    delete c;
-//    delete colors;
+    colors = nullptr;
+    c      = nullptr;
 }
 
 
@@ -85,6 +81,18 @@ void Mandelbrot::Update(){
 void Mandelbrot::Iterations(const int32_t iterations)
 {
     iters = iterations;
+}
+
+
+void Mandelbrot::CentralDot(const bool enable)
+{
+    central_dot = enable;
+}
+
+
+bool Mandelbrot::CentralDot()
+{
+    return central_dot;
 }
 
 
@@ -127,56 +135,97 @@ void Mandelbrot::previousConvergence(){
     allocRessources ();
 }
 
+
+//
+//
+//
+bool Mandelbrot::selectColorMap(const std::string name)
+{
+    const int32_t num = library.find( name );
+    if( num < 0 )
+        return false;
+    freeRessources ();
+    library.get    ( num );
+    allocRessources();
+    return true;
+}
+
+
+//
+//
+//
+bool Mandelbrot::selectConvergence(const std::string name)
+{
+    const int32_t num = converge.find( name );
+    if( num < 0 )
+        return false;
+    freeRessources ();
+    converge.get   ( num );
+    allocRessources();
+    return true;
+}
+
+
+std::string Mandelbrot::colorMapName()
+{
+    return colors->name();
+}
+
+
+std::string Mandelbrot::convergenceName()
+{
+    return c->name();
+}
+
+
 void Mandelbrot::listAllModules()
 {
     converge.listAllModules();
 }
 
 
+void Mandelbrot::listAllColorMaps()
+{
+    library.listAllModules();
+}
+
 
 void Mandelbrot::Benchmark(const long double zoom, const long double offsetX, const long double offsetY)
 {
-    assert( f_witdh  == params->Width()  );
-    assert( f_height == params->Height() );
     c->updateImage(zoom, offsetX, offsetY, f_width, f_height, iter_fcount);
 }
 
 
-void Mandelbrot::RunBenchmark(const long double zoom, const long double offsetX, const long double offsetY)
+void Mandelbrot::RunBenchmark(const long double zoom, const long double offsetX, const long double offsetY, const int32_t nTests)
 {
-    std::cout << "(II) Lancement du benchmark ("  << converge.size() << ")"  << std::endl;
+    std::cout << "(II) Lancement du benchmark ("  << converge.size() << " moteurs, " << f_width << "x" << f_height << ", " << iters << " iterations)" << std::endl;
     for( int32_t m = 0; m < converge.size(); m += 1 )
     {
         Convergence* cc = converge.list.at( m );
-        auto start = chrono::steady_clock::now();
+        cc->setIters( iters );
 
-        const int32_t nTests = 2;
+        cc->updateImage(zoom, offsetX, offsetY, f_width, f_height, iter_fcount); // warm-up (allocations GPU, compilation des kernels, ...)
+
+        auto start = std::chrono::steady_clock::now();
         for( int32_t loop = 0; loop < nTests; loop += 1 )
         {
             cc->updateImage(zoom, offsetX, offsetY, f_width, f_height, iter_fcount);
         }
-        auto end = chrono::steady_clock::now();
+        auto end = std::chrono::steady_clock::now();
 
         std::string item  = cc->toShortString();
-        const auto mtime = chrono::duration_cast<chrono::microseconds>(end - start).count();
-        cout << "|" << item;
-        printf("%8ld us|\n", (mtime/ nTests));
-
+        const long long mtime = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+        std::cout << "|" << item;
+        printf("%10lld us|\n", (mtime / nTests));
     }
-//    c->updateImage(zoom, offsetX, offsetY, f_width, f_height, iter_fcount);
-
-    exit(EXIT_SUCCESS);
 }
 
 
 //
 //
 //
-void Mandelbrot::updateImage(const long double zoom, const long double offsetX, const long double offsetY, sf::Image& image)
+void Mandelbrot::updateImage(const long double zoom, const long double offsetX, const long double offsetY, gfx::Image& image)
 {
-    assert( f_witdh  == params->Width() );
-    assert( f_height == params->Height() );
-
     c->updateImage(zoom, offsetX, offsetY, f_width, f_height, iter_fcount);
     colors->colorize(f_width, f_height, iter_fcount, image);
 
@@ -184,9 +233,9 @@ void Mandelbrot::updateImage(const long double zoom, const long double offsetX, 
     //  Affichage du marqueur central si l'utilisateur l'a souhaité
     //
 
-    if ( false /*params->isCentralDotEnabled*/)
+    if ( central_dot == true )
     {
-        sf::Color white(255, 255, 255);
+        gfx::Color white(255, 255, 255);
         image.setPixel(f_width/2-1, f_height/2,   white);
         image.setPixel(f_width/2+1, f_height/2,   white);
         image.setPixel(f_width/2,   f_height/2,   white);

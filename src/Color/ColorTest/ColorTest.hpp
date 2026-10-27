@@ -26,7 +26,7 @@
 #define _ColorTest_
 
 #include "../ColorMap.hpp"
-#include <SFML/Graphics.hpp>
+#include "Utils/Image.hpp"
 
 class ColorTest : public ColorMap {
 public:
@@ -44,16 +44,16 @@ public:
             const int r   = (int)round( 9.f * (1.0f-t) * t * t * t               * 255.0f);
             const int g   = (int)round(15.f * (1.0f-t) * (1.0f-t) * t * t        * 255.0f);
             const int b   = (int)round(8.5f * (1.0f-t) * (1.0f-t) * (1.0f-t) * t * 255.0f);
-            colors[i] = sf::Color(r, g, b);
+            colors[i] = gfx::Color(r, g, b);
         }
-        colors[MAX-1] = sf::Color(0, 0, 0);
+        colors[MAX-1] = gfx::Color(0, 0, 0);
     }
 
     virtual ~ColorTest(){
 
     }
 
-//    virtual sf::Color getColor(int iterations){
+//    virtual gfx::Color getColor(int iterations){
 //        assert( iterations <= MAX );
 //        return colors[iterations];
 //    }

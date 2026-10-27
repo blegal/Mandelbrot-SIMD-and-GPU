@@ -55,10 +55,7 @@ DP_NEON_OMP::~DP_NEON_OMP()
 
 inline int _arm_movemask_pd(const uint64x2_t a)
 {
-    uint32x4_t input = a;
-    static const int32x4_t shift = {0, 1, 2, 3};
-    uint32x4_t tmp = vshrq_n_u32(input, 31);
-    return vaddvq_u32(vshlq_u32(tmp, shift));
+    return (int)( (vgetq_lane_u64(a, 0) >> 63) | ((vgetq_lane_u64(a, 1) >> 63) << 1) );
 }
 
 
@@ -106,7 +103,7 @@ void DP_NEON_OMP::updateImage(const long double _zoom, const long double _offset
                     v_zReal = vaddq_f64(vsubq_f64(v_r2, v_i2), v_startReal);
 
                     const float64x2_t v_r2_plus_i2  = vaddq_f64(v_r2, v_i2);
-                    const uint32x4_t  v_cmp_res     = vcltq_f64(v_r2_plus_i2, v_4_0f);
+                    const uint64x2_t  v_cmp_res     = vcltq_f64(v_r2_plus_i2, v_4_0f);
                     const float64x2_t u_value = vaddq_f64(v_value, v_1_0f);
                     v_value = vbslq_f64(v_cmp_res, u_value, v_value); // si r2+i2 < 4 value++
 
@@ -118,10 +115,9 @@ void DP_NEON_OMP::updateImage(const long double _zoom, const long double _offset
                 }
 
                 double buffer[2];
-                vst1q_f64(buffer, v_value);                      // TODO BUG !!!
+                vst1q_f64(buffer, v_value);
                 (*ptr_o++) = (float)buffer[0];
                 (*ptr_o++) = (float)buffer[1];
-//                ptr_o += (sizeof(float64x2_t)/sizeof(float));   // TODO BUG !!!
                 v_startReal = vaddq_f64(v_startReal, XStep);
             }
         }

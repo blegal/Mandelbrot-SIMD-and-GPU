@@ -53,6 +53,8 @@ public:
 
     Convergence* get();
 
+    int32_t find(const std::string name); // -1 si le moteur n'existe pas
+
     void next();
 
     void previous();

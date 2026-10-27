@@ -22,7 +22,7 @@
  *  source distribution.
  *
  */
-#if defined(__APPLE__)
+#if defined(_ENABLE_METAL_)
 /*
  *
  *
@@ -30,10 +30,8 @@
  *
  *
  */
-#define NS_PRIVATE_IMPLEMENTATION
-#define CA_PRIVATE_IMPLEMENTATION
-#define MTL_PRIVATE_IMPLEMENTATION
 #include "SP_metal.hpp"
+#include <cstdint>
 /*
  *
  *
@@ -41,15 +39,27 @@
  *
  *
  */
-SP_metal::SP_metal() : Convergence("SP_METAL")
+//
+// Doit correspondre a la structure sp_params de mandelbrot.metal
+//
+struct sp_params {
+    float    zoom;
+    float    cornerX;
+    float    cornerY;
+    uint32_t width;
+    uint32_t height;
+    uint32_t max_iters;
+};
+/*
+ *
+ *
+ *##############################################################################
+ *
+ *
+ */
+SP_metal::SP_metal() : MetalEngine("SP_METAL", "mandelbrot_sp", true)
 {
-    fractal     = "mandelbrot";
     dataFormat  = "float";
-    modeSIMD    = "none";
-    modeOPENMP  = "disable";
-    OTHER       = "metal";
-
-    _mBuffer    = nullptr;
 }
 /*
  *
@@ -58,20 +68,11 @@ SP_metal::SP_metal() : Convergence("SP_METAL")
  *
  *
  */
-SP_metal::SP_metal(ColorMap* _colors, int _max_iters) : Convergence("SP_METAL") {
+SP_metal::SP_metal(ColorMap* _colors, int _max_iters) : MetalEngine("SP_METAL", "mandelbrot_sp", true)
+{
     colors      = _colors;
     max_iters   = _max_iters;
-
-    fractal     = "mandelbrot";
     dataFormat  = "float";
-    modeSIMD    = "none";
-    modeOPENMP  = "disable";
-    OTHER       = "none";
-
-    _mBuffer    = nullptr;
-
-
-
 }
 /*
  *
@@ -99,152 +100,17 @@ void SP_metal::updateImage(
         const int IMAGE_HEIGHT,
         float* ptr)
 {
-    const int IMAGE_SIZE = IMAGE_WIDTH * IMAGE_HEIGHT;
+    const long double corner_x = _offsetX - (IMAGE_WIDTH  / 2.0L) * _zoom;
+    const long double corner_y = _offsetY - (IMAGE_HEIGHT / 2.0L) * _zoom;
 
-    if( _mBuffer == nullptr )
-    {
-        //
-        // On recherche la device par defaut dans le systeme
-        //
+    sp_params params;
+    params.zoom      = (float)_zoom;
+    params.cornerX   = (float)corner_x;
+    params.cornerY   = (float)corner_y;
+    params.width     = IMAGE_WIDTH;
+    params.height    = IMAGE_HEIGHT;
+    params.max_iters = max_iters;
 
-        _mDevice = MTL::CreateSystemDefaultDevice();
-
-        NS::Error *error = nullptr;
-
-        //
-        // On cherche la bibliotheque contenant le code metal compilé
-        //
-
-        NS::String* filePath         = NS::String::string("./mandelbrot_sp.metallib", NS::UTF8StringEncoding);
-        MTL::Library *defaultLibrary = _mDevice->newLibrary(filePath, &error);
-        if (defaultLibrary == nullptr)
-        {
-            std::cout << "(EE) Failed to find the [mandelbrot_sp.metallib] library file." << std::endl;
-            exit( EXIT_FAILURE );
-        }
-
-        //
-        // On part à la recherche de la fonction (metal) dans la bibliotheque
-        //
-
-        auto str = NS::String::string("mandelbrot_sp",       NS::ASCIIStringEncoding);
-        MTL::Function *addFunction = defaultLibrary->newFunction(str);
-        if (addFunction == nullptr)
-        {
-            std::cout << "(EE) Failed to find the [mandelbrot_sp] function in the library." << std::endl;
-            exit( EXIT_FAILURE );
-        }
-
-        //
-        // On cree les structures qui vont nous permettre de lancer les operations sur le GPU
-        //
-
-        _mAddFunctionPSO = _mDevice->newComputePipelineState(addFunction, &error);
-        if (_mAddFunctionPSO == nullptr)
-        {
-            //  If the Metal API validation is enabled, you can find out more information about what
-            //  went wrong.  (Metal API validation is enabled by default when a debug build is run
-            //  from Xcode)
-            std::cout << "Failed to created pipeline state object, error " << error << "." << std::endl;
-            exit( EXIT_FAILURE );
-        }
-
-        _mCommandQueue = _mDevice->newCommandQueue();
-        if (_mCommandQueue == nullptr)
-        {
-            std::cout << "Failed to find the command queue." << std::endl;
-            exit( EXIT_FAILURE );
-        }
-
-        //
-        //  Allocation des zones mémoire permettant d'échanger avec le GPU
-        //
-
-        _mBuffer  = _mDevice->newBuffer(sizeof(uint32_t) * IMAGE_SIZE, MTL::ResourceStorageModeShared);
-        _mZoom    = _mDevice->newBuffer(sizeof(float),    MTL::ResourceStorageModeShared);
-        _mOffsetX = _mDevice->newBuffer(sizeof(float),    MTL::ResourceStorageModeShared);
-        _mOffsetY = _mDevice->newBuffer(sizeof(float),    MTL::ResourceStorageModeShared);
-        _mWidth   = _mDevice->newBuffer(sizeof(uint32_t), MTL::ResourceStorageModeShared);
-        _mHeight  = _mDevice->newBuffer(sizeof(uint32_t), MTL::ResourceStorageModeShared);
-        _mIters   = _mDevice->newBuffer(sizeof(uint32_t), MTL::ResourceStorageModeShared);
-    }
-
-    //
-    // Create a command buffer to hold commands
-    //
-
-    MTL::CommandBuffer *commandBuffer = _mCommandQueue->commandBuffer();
-    if (commandBuffer == nullptr)
-    {
-        std::cout << "(EE) Failed to create a command buffer." << std::endl;
-        exit( EXIT_FAILURE );
-    }
-
-    //
-    // Start a compute pass.
-    //
-
-    MTL::ComputeCommandEncoder *computeEncoder = commandBuffer->computeCommandEncoder();
-    if (computeEncoder == nullptr)
-    {
-        std::cout << "(EE) Failed to create a compute encoder." << std::endl;
-        exit( EXIT_FAILURE );
-    }
-
-    // Encode the pipeline state object and its parameters.
-    computeEncoder->setComputePipelineState(_mAddFunctionPSO);
-
-    const long double corner_x = _offsetX - (IMAGE_WIDTH  / 2.0f) * _zoom;
-    const long double corner_y = _offsetY - (IMAGE_HEIGHT / 2.0f) * _zoom;
-
-    *((float*   )_mZoom   ->contents()) = _zoom;
-    *((float*   )_mOffsetX->contents()) = corner_x;
-    *((float*   )_mOffsetY->contents()) = corner_y;
-    *((uint32_t*)_mWidth  ->contents()) = IMAGE_WIDTH;
-    *((uint32_t*)_mHeight ->contents()) = IMAGE_HEIGHT;
-    *((uint32_t*)_mIters  ->contents()) = max_iters;
-
-    computeEncoder->setBuffer(_mBuffer,  0, 0);
-    computeEncoder->setBuffer(_mZoom,    0, 1);
-    computeEncoder->setBuffer(_mOffsetX, 0, 2);
-    computeEncoder->setBuffer(_mOffsetY, 0, 3);
-    computeEncoder->setBuffer(_mWidth,   0, 4);
-    computeEncoder->setBuffer(_mHeight,  0, 5);
-    computeEncoder->setBuffer(_mIters,   0, 6);
-
-    const int w = _mAddFunctionPSO->threadExecutionWidth();
-    const int h = _mAddFunctionPSO->maxTotalThreadsPerThreadgroup() / w;
-    MTL::Size threadsPerGrid        = MTL::Size::Make(IMAGE_WIDTH, IMAGE_HEIGHT, 1);
-    MTL::Size threadsPerThreadgroup = MTL::Size::Make(w, h, 1);
-    computeEncoder->dispatchThreads(threadsPerGrid, threadsPerThreadgroup);
-
-    // End the compute pass.
-    computeEncoder->endEncoding();
-
-    // Execute the command.
-    commandBuffer->commit();
-
-    // Normally, you want to do other work in your app while the GPU is running,
-    // but in this example, the code simply blocks until the calculation is complete.
-    commandBuffer->waitUntilCompleted();
-
-    // On push back dans le buffer logiciel les resultats de calcul.
-
-    const uint32_t* mBuffer = (uint32_t*)_mBuffer->contents();
-    for (int p = 0; p < IMAGE_SIZE; p += 1)
-    {
-        ptr[p] = mBuffer[p];
-    }
-}
-/*
- *
- *
- *##############################################################################
- *
- *
- */
-bool SP_metal::is_valid()
-{
-    return true;
+    run(&params, sizeof(params), IMAGE_WIDTH, IMAGE_HEIGHT, ptr);
 }
 #endif

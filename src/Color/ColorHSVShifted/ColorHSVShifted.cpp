@@ -38,8 +38,8 @@ void ColorHSVShifted::setIters(int max_iters)
     {
         colors[i] = ColorUtils::HSVToRGB(255*(MAX-ITER)/MAX, 255, 255);
     }
-    colors[MAX-1] = sf::Color(0, 0, 0);
-    colors[MAX] = sf::Color(0, 0, 0);
+    colors[MAX-1] = gfx::Color(0, 0, 0);
+    colors[MAX] = gfx::Color(0, 0, 0);
 }
 
 

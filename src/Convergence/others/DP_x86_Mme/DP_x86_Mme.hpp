@@ -25,7 +25,7 @@
 #ifndef _DP_x86_Mme_
 #define _DP_x86_Mme_
 
-#include <SFML/Graphics.hpp>
+#include "Utils/Image.hpp"
 #include <array>
 #include <vector>
 #include <thread>

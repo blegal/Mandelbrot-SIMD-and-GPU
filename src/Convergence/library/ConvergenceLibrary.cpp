@@ -23,6 +23,12 @@
  *
  */
 #include "ConvergenceLibrary.hpp"
+#include <cstdlib>
+#if defined(_MSC_VER)
+    #define strcasecmp _stricmp
+#else
+    #include <strings.h>
+#endif
 
 ////////    MANDELBROT FIXED POINT      ////////
 
@@ -80,6 +86,7 @@
 ////////      GPU VERSIONS (FLOAT and double)      ////////
 
 #include "Convergence/mandelbrot/simple/metal/mono/SP_metal.hpp"
+#include "Convergence/mandelbrot/double/metal/mono/DF_metal.hpp"
 
 #include "Convergence/mandelbrot/simple/cuda/mono/SP_cuda.hpp"
 #include "Convergence/mandelbrot/double/cuda/mono/DP_cuda.hpp"
@@ -181,8 +188,9 @@ ConvergenceLibrary::ConvergenceLibrary()
     //////////////////////////////////////////////////////////////////////
     //
 
-#if defined(__APPLE__)
+#if defined(_ENABLE_METAL_)
     list.push_back( new SP_metal(nullptr, 255) );
+    list.push_back( new DF_metal(nullptr, 255) );
 #endif
 
 #if defined(_ENABLE_CUDA_)
@@ -320,8 +328,22 @@ ConvergenceLibrary::~ConvergenceLibrary(){
 }
 
 Convergence* ConvergenceLibrary::get(std::string name){
-    counter = indx[name];
+    const int32_t num = find( name );
+    counter = (num < 0) ? 0 : num;
     return get();
+}
+
+int32_t ConvergenceLibrary::find(const std::string name){
+    for(uint32_t i = 0; i < list.size(); i++)
+    {
+        if( strcasecmp(list[i]->name().c_str(), name.c_str()) == 0 )
+            return i;
+    }
+    char* end;
+    const long num = strtol(name.c_str(), &end, 10);
+    if( (*end == '\0') && (end != name.c_str()) && (num >= 0) && (num < (long)list.size()) )
+        return num;
+    return -1;
 }
 
 Convergence* ConvergenceLibrary::get(int num){

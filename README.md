@@ -1,339 +1,436 @@
-GNU GENERAL PUBLIC LICENSE
-                       Version 2, June 1991
+# Mandelbrot — SIMD and GPU
 
- Copyright (C) 1989, 1991 Free Software Foundation, Inc.,
- 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
- Everyone is permitted to copy and distribute verbatim copies
- of this license document, but changing it is not allowed.
+An interactive Mandelbrot (and Julia) set explorer whose purpose is to **compare the
+same computation written for very different targets**: scalar C++, SIMD intrinsics
+(SSE4, AVX2, AVX-512, ARM NEON), OpenMP multi-threading, fixed-point and quad
+precision arithmetic, and GPUs through **Metal** (Apple) and **CUDA** (NVIDIA).
 
-                            Preamble
+Every implementation ("engine") renders the exact same view, so you can switch
+from one to another with a key press and see — or benchmark — the difference.
 
-  The licenses for most software are designed to take away your
-freedom to share and change it.  By contrast, the GNU General Public
-License is intended to guarantee your freedom to share and change free
-software--to make sure the software is free for all its users.  This
-General Public License applies to most of the Free Software
-Foundation's software and to any other program whose authors commit to
-using it.  (Some other Free Software Foundation software is covered by
-the GNU Lesser General Public License instead.)  You can apply it to
-your programs, too.
+<p align="center">
+  <img src="docs/screenshots/overview.png" width="49%" alt="Overview of the Mandelbrot set"/>
+  <img src="docs/screenshots/seahorse-valley.png" width="49%" alt="Seahorse valley"/>
+  <img src="docs/screenshots/elephant-valley.png" width="49%" alt="Elephant valley"/>
+  <img src="docs/screenshots/minibrot.png" width="49%" alt="Mini-brot on the real axis"/>
+</p>
 
-  When we speak of free software, we are referring to freedom, not
-price.  Our General Public Licenses are designed to make sure that you
-have the freedom to distribute copies of free software (and charge for
-this service if you wish), that you receive source code or can get it
-if you want it, that you can change the software or use pieces of it
-in new free programs; and that you know you can do these things.
+---
 
-  To protect your rights, we need to make restrictions that forbid
-anyone to deny you these rights or to ask you to surrender the rights.
-These restrictions translate to certain responsibilities for you if you
-distribute copies of the software, or if you modify it.
+## Contents
 
-  For example, if you distribute copies of such a program, whether
-gratis or for a fee, you must give the recipients all the rights that
-you have.  You must make sure that they, too, receive or can get the
-source code.  And you must show them these terms so they know their
-rights.
+- [Features](#features)
+- [Building](#building)
+  - [Dependencies](#dependencies)
+  - [Quick start](#quick-start)
+  - [Build options](#build-options)
+  - [Platform notes](#platform-notes)
+    - [Ubuntu step by step](#ubuntu-step-by-step)
+- [Usage](#usage)
+  - [Command line options](#command-line-options)
+  - [Keyboard and mouse](#keyboard-and-mouse)
+  - [Examples](#examples)
+- [Computation engines](#computation-engines)
+  - [GPU engines: Metal and CUDA](#gpu-engines-metal-and-cuda)
+- [Performance](#performance)
+- [Project layout](#project-layout)
+- [Adding a new engine](#adding-a-new-engine)
+- [License](#license)
 
-  We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
-distribute and/or modify the software.
+---
 
-  Also, for each author's protection and ours, we want to make certain
-that everyone understands that there is no warranty for this free
-software.  If the software is modified by someone else and passed on, we
-want its recipients to know that what they have is not the original, so
-that any problems introduced by others will not reflect on the original
-authors' reputations.
+## Features
 
-  Finally, any free program is threatened constantly by software
-patents.  We wish to avoid the danger that redistributors of a free
-program will individually obtain patent licenses, in effect making the
-program proprietary.  To prevent this, we have made it clear that any
-patent must be licensed for everyone's free use or not licensed at all.
+- **54 computation engines**: `float`, `double`, quad (`long double`), fixed-point
+  (Q16.11, Q18.14, Q32.27), scalar or SIMD, single or multi-core, CPU or GPU.
+  Only the engines supported by the build machine are compiled and listed.
+- **GPU engines**: Metal (`SP_METAL`, `DF_METAL`) written in plain C++ with
+  [metal-cpp](https://developer.apple.com/metal/cpp/), and CUDA (`SP_CUDA`, `DP_CUDA`).
+- **Emulated double precision on Apple GPUs** (`DF_METAL`, "float-float"
+  arithmetic): zoom ~10⁶ times deeper than single precision at GPU speed.
+- **10 color palettes**, switchable at run time.
+- **Portable GUI** based on GLFW + OpenGL (Linux, macOS, Windows), keyboard-layout
+  aware (AZERTY/QWERTY…).
+- **Headless rendering** to PNG / PPM / BMP — no external image library needed.
+- **Benchmark mode** that times every available engine on the same 4K view.
 
-  The precise terms and conditions for copying, distribution and
-modification follow.
+---
 
-                    GNU GENERAL PUBLIC LICENSE
-   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
+## Building
 
-  0. This License applies to any program or other work which contains
-a notice placed by the copyright holder saying it may be distributed
-under the terms of this General Public License.  The "Program", below,
-refers to any such program or work, and a "work based on the Program"
-means either the Program or any derivative work under copyright law:
-that is to say, a work containing the Program or a portion of it,
-either verbatim or with modifications and/or translated into another
-language.  (Hereinafter, translation is included without limitation in
-the term "modification".)  Each licensee is addressed as "you".
+### Dependencies
 
-Activities other than copying, distribution and modification are not
-covered by this License; they are outside its scope.  The act of
-running the Program is not restricted, and the output from the Program
-is covered only if its contents constitute a work based on the
-Program (independent of having been made by running the Program).
-Whether that is true depends on what the Program does.
+| Dependency | Required | Notes |
+|---|---|---|
+| C++17 compiler | yes | Clang, GCC or MSVC |
+| CMake ≥ 3.16 | yes | |
+| OpenMP | recommended | multi-core engines (`*_OMP`). macOS: `brew install libomp` |
+| GLFW 3.3+ and OpenGL | for the GUI | **downloaded automatically** if not installed |
+| Xcode command line tools | for Metal | macOS only, the Metal *toolchain* is **not** needed |
+| CUDA Toolkit | for CUDA | auto-detected |
 
-  1. You may copy and distribute verbatim copies of the Program's
-source code as you receive it, in any medium, provided that you
-conspicuously and appropriately publish on each copy an appropriate
-copyright notice and disclaimer of warranty; keep intact all the
-notices that refer to this License and to the absence of any warranty;
-and give any other recipients of the Program a copy of this License
-along with the Program.
+Installing the optional dependencies:
 
-You may charge a fee for the physical act of transferring a copy, and
-you may at your option offer warranty protection in exchange for a fee.
+```bash
+# macOS (Homebrew)
+brew install cmake libomp glfw
 
-  2. You may modify your copy or copies of the Program or any portion
-of it, thus forming a work based on the Program, and copy and
-distribute such modifications or work under the terms of Section 1
-above, provided that you also meet all of these conditions:
+# Fedora
+sudo dnf install gcc-c++ cmake glfw-devel mesa-libGL-devel
+```
 
-    a) You must cause the modified files to carry prominent notices
-    stating that you changed the files and the date of any change.
+For Debian / Ubuntu, see [Ubuntu step by step](#ubuntu-step-by-step) below.
 
-    b) You must cause any work that you distribute or publish, that in
-    whole or in part contains or is derived from the Program or any
-    part thereof, to be licensed as a whole at no charge to all third
-    parties under the terms of this License.
+If GLFW is not installed, CMake fetches and builds it (GLFW 3.4). On Linux this
+requires the X11/Wayland development headers
+(`libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libwayland-dev libxkbcommon-dev`).
 
-    c) If the modified program normally reads commands interactively
-    when run, you must cause it, when started running for such
-    interactive use in the most ordinary way, to print or display an
-    announcement including an appropriate copyright notice and a
-    notice that there is no warranty (or else, saying that you provide
-    a warranty) and that users may redistribute the program under
-    these conditions, and telling the user how to view a copy of this
-    License.  (Exception: if the Program itself is interactive but
-    does not normally print such an announcement, your work based on
-    the Program is not required to print an announcement.)
+### Quick start
 
-These requirements apply to the modified work as a whole.  If
-identifiable sections of that work are not derived from the Program,
-and can be reasonably considered independent and separate works in
-themselves, then this License, and its terms, do not apply to those
-sections when you distribute them as separate works.  But when you
-distribute the same sections as part of a whole which is a work based
-on the Program, the distribution of the whole must be on the terms of
-this License, whose permissions for other licensees extend to the
-entire whole, and thus to each and every part regardless of who wrote it.
+```bash
+git clone https://github.com/blegal/Mandelbrot-SIMD-and-GPU.git
+cd Mandelbrot-SIMD-and-GPU
+cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j
+./build/mandelbrot
+```
 
-Thus, it is not the intent of this section to claim rights or contest
-your rights to work written entirely by you; rather, the intent is to
-exercise the right to control the distribution of derivative or
-collective works based on the Program.
+### Build options
 
-In addition, mere aggregation of another work not based on the Program
-with the Program (or with a work based on the Program) on a volume of
-a storage or distribution medium does not bring the other work under
-the scope of this License.
+Pass them to the configure step, e.g. `cmake -B build -DMANDELBROT_ENABLE_GUI=OFF`.
 
-  3. You may copy and distribute the Program (or a work based on it,
-under Section 2) in object code or executable form under the terms of
-Sections 1 and 2 above provided that you also do one of the following:
+| Option | Default | Description |
+|---|---|---|
+| `MANDELBROT_ENABLE_GUI` | `ON` | GLFW + OpenGL window. `OFF` gives a headless binary (servers, CI) |
+| `MANDELBROT_FETCH_GLFW` | `ON` | Download GLFW when it is not found on the system |
+| `MANDELBROT_ENABLE_OPENMP` | `ON` | Multi-core engines (falls back to single core if OpenMP is missing) |
+| `MANDELBROT_ENABLE_METAL` | `AUTO` | `AUTO` enables Metal on macOS with Clang and skips it elsewhere, `ON` makes it mandatory, `OFF` disables it |
+| `MANDELBROT_ENABLE_CUDA` | `AUTO` | `AUTO` enables CUDA when `nvcc` is found, `ON` makes it mandatory, `OFF` disables it |
+| `MANDELBROT_NATIVE` | `ON` | Tune for the build machine (`-march=native` on x86, `-mcpu=native` on ARM, `/arch:AVX2` with MSVC) |
+| `CMAKE_CUDA_ARCHITECTURES` | `native` | GPU architectures for CUDA, e.g. `-DCMAKE_CUDA_ARCHITECTURES="86;87"` |
 
-    a) Accompany it with the complete corresponding machine-readable
-    source code, which must be distributed under the terms of Sections
-    1 and 2 above on a medium customarily used for software interchange; or,
+> **SIMD engines are selected at compile time.** With `MANDELBROT_NATIVE=ON` the
+> binary uses every instruction set of the build machine (SSE4, AVX2, AVX-512,
+> NEON) — and may therefore not run on an older CPU. Use `MANDELBROT_NATIVE=OFF`
+> for a portable binary (scalar + OpenMP + GPU engines only).
 
-    b) Accompany it with a written offer, valid for at least three
-    years, to give any third party, for a charge no more than your
-    cost of physically performing source distribution, a complete
-    machine-readable copy of the corresponding source code, to be
-    distributed under the terms of Sections 1 and 2 above on a medium
-    customarily used for software interchange; or,
+### Platform notes
 
-    c) Accompany it with the information you received as to the offer
-    to distribute corresponding source code.  (This alternative is
-    allowed only for noncommercial distribution and only if you
-    received the program in object code or executable form with such
-    an offer, in accord with Subsection b above.)
+**macOS (Apple Silicon or Intel).** Apple Clang works out of the box; CMake finds
+Homebrew's `libomp` automatically. The Metal kernels are embedded into the
+executable at build time and compiled by the GPU driver on first use, so the
+optional "Metal Toolchain" component of Xcode is not required. To build with
+Homebrew's LLVM instead:
 
-The source code for a work means the preferred form of the work for
-making modifications to it.  For an executable work, complete source
-code means all the source code for all modules it contains, plus any
-associated interface definition files, plus the scripts used to
-control compilation and installation of the executable.  However, as a
-special exception, the source code distributed need not include
-anything that is normally distributed (in either source or binary
-form) with the major components (compiler, kernel, and so on) of the
-operating system on which the executable runs, unless that component
-itself accompanies the executable.
+```bash
+cmake -B build -DCMAKE_CXX_COMPILER=$(brew --prefix llvm)/bin/clang++
+```
 
-If distribution of executable or object code is made by offering
-access to copy from a designated place, then offering equivalent
-access to copy the source code from the same place counts as
-distribution of the source code, even though third parties are not
-compelled to copy the source along with the object code.
+**Linux (x86-64 or ARM64).** Both GCC and Clang are supported. NEON engines are
+used on ARM64 boards (Raspberry Pi, NVIDIA Jetson…). Metal is skipped
+automatically.
 
-  4. You may not copy, modify, sublicense, or distribute the Program
-except as expressly provided under this License.  Any attempt
-otherwise to copy, modify, sublicense or distribute the Program is
-void, and will automatically terminate your rights under this License.
-However, parties who have received copies, or rights, from you under
-this License will not have their licenses terminated so long as such
-parties remain in full compliance.
+**NVIDIA Jetson / CUDA machines.** Make sure `nvcc` is in the `PATH` (e.g.
+`export PATH=/usr/local/cuda/bin:$PATH`); CUDA is then enabled automatically:
 
-  5. You are not required to accept this License, since you have not
-signed it.  However, nothing else grants you permission to modify or
-distribute the Program or its derivative works.  These actions are
-prohibited by law if you do not accept this License.  Therefore, by
-modifying or distributing the Program (or any work based on the
-Program), you indicate your acceptance of this License to do so, and
-all its terms and conditions for copying, distributing or modifying
-the Program or works based on it.
+```bash
+cmake -B build -DCMAKE_BUILD_TYPE=Release   # look for "CUDA engines : enabled"
+cmake --build build -j
+```
 
-  6. Each time you redistribute the Program (or any work based on the
-Program), the recipient automatically receives a license from the
-original licensor to copy, distribute or modify the Program subject to
-these terms and conditions.  You may not impose any further
-restrictions on the recipients' exercise of the rights granted herein.
-You are not responsible for enforcing compliance by third parties to
-this License.
+#### Ubuntu step by step
 
-  7. If, as a consequence of a court judgment or allegation of patent
-infringement or for any other reason (not limited to patent issues),
-conditions are imposed on you (whether by court order, agreement or
-otherwise) that contradict the conditions of this License, they do not
-excuse you from the conditions of this License.  If you cannot
-distribute so as to satisfy simultaneously your obligations under this
-License and any other pertinent obligations, then as a consequence you
-may not distribute the Program at all.  For example, if a patent
-license would not permit royalty-free redistribution of the Program by
-all those who receive copies directly or indirectly through you, then
-the only way you could satisfy both it and this License would be to
-refrain entirely from distribution of the Program.
+Package names are those of Ubuntu 22.04 and 24.04 (also valid on Debian 12).
 
-If any portion of this section is held invalid or unenforceable under
-any particular circumstance, the balance of the section is intended to
-apply and the section as a whole is intended to apply in other
-circumstances.
+**Without CUDA** (CPU engines + GUI):
 
-It is not the purpose of this section to induce you to infringe any
-patents or other property right claims or to contest validity of any
-such claims; this section has the sole purpose of protecting the
-integrity of the free software distribution system, which is
-implemented by public license practices.  Many people have made
-generous contributions to the wide range of software distributed
-through that system in reliance on consistent application of that
-system; it is up to the author/donor to decide if he or she is willing
-to distribute software through any other system and a licensee cannot
-impose that choice.
+```bash
+sudo apt update
+sudo apt install build-essential cmake git pkg-config \
+                 libglfw3-dev libgl1-mesa-dev
+```
 
-This section is intended to make thoroughly clear what is believed to
-be a consequence of the rest of this License.
+GCC ships OpenMP (`libgomp`), nothing else is needed. If you build with Clang,
+also install `clang libomp-dev`. For a headless build (server, CI, WSL without
+display), the GLFW/OpenGL packages are not needed:
 
-  8. If the distribution and/or use of the Program is restricted in
-certain countries either by patents or by copyrighted interfaces, the
-original copyright holder who places the Program under this License
-may add an explicit geographical distribution limitation excluding
-those countries, so that distribution is permitted only in or among
-countries not thus excluded.  In such case, this License incorporates
-the limitation as if written in the body of this License.
+```bash
+sudo apt install build-essential cmake git
+cmake -B build -DCMAKE_BUILD_TYPE=Release -DMANDELBROT_ENABLE_GUI=OFF
+cmake --build build -j
+```
 
-  9. The Free Software Foundation may publish revised and/or new versions
-of the General Public License from time to time.  Such new versions will
-be similar in spirit to the present version, but may differ in detail to
-address new problems or concerns.
+**With CUDA** (NVIDIA GPU): install the packages above, then the NVIDIA driver
+and the CUDA Toolkit from NVIDIA's repository (replace `ubuntu2404` with
+`ubuntu2204` on 22.04, and `x86_64` with `sbsa` on ARM64 servers):
 
-Each version is given a distinguishing version number.  If the Program
-specifies a version number of this License which applies to it and "any
-later version", you have the option of following the terms and conditions
-either of that version or of any later version published by the Free
-Software Foundation.  If the Program does not specify a version number of
-this License, you may choose any version ever published by the Free Software
-Foundation.
+```bash
+# NVIDIA driver (skip if `nvidia-smi` already works), then reboot
+sudo ubuntu-drivers install
 
-  10. If you wish to incorporate parts of the Program into other free
-programs whose distribution conditions are different, write to the author
-to ask for permission.  For software which is copyrighted by the Free
-Software Foundation, write to the Free Software Foundation; we sometimes
-make exceptions for this.  Our decision will be guided by the two goals
-of preserving the free status of all derivatives of our free software and
-of promoting the sharing and reuse of software generally.
+# CUDA Toolkit
+wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb
+sudo dpkg -i cuda-keyring_1.1-1_all.deb
+sudo apt update
+sudo apt install cuda-toolkit
 
-                            NO WARRANTY
+# make nvcc visible to CMake (add it to ~/.bashrc to keep it)
+export PATH=/usr/local/cuda/bin:$PATH
+```
 
-  11. BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
-FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.  EXCEPT WHEN
-OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES
-PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED
-OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.  THE ENTIRE RISK AS
-TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU.  SHOULD THE
-PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING,
-REPAIR OR CORRECTION.
+The distribution package `sudo apt install nvidia-cuda-toolkit` also works and
+is simpler, but it ships an older CUDA that may reject recent GCC versions
+(`unsupported GNU version`); in that case pass an older host compiler, e.g.
+`-DCMAKE_CUDA_HOST_COMPILER=g++-12`. On Jetson boards the toolkit comes with
+JetPack: only the `export PATH=...` line is needed.
 
-  12. IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
-WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR
-REDISTRIBUTE THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES,
-INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING
-OUT OF THE USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED
-TO LOSS OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY
-YOU OR THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER
-PROGRAMS), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGES.
+Then build as usual and check that CMake prints `CUDA engines : enabled`:
 
-                     END OF TERMS AND CONDITIONS
+```bash
+nvcc --version
+cmake -B build -DCMAKE_BUILD_TYPE=Release -DMANDELBROT_ENABLE_CUDA=ON
+cmake --build build -j
+./build/mandelbrot -e SP_CUDA
+```
 
-            How to Apply These Terms to Your New Programs
+**Windows.** Use Visual Studio 2022 (MSVC or clang-cl) or MSYS2/MinGW:
 
-  If you develop a new program, and you want it to be of the greatest
-possible use to the public, the best way to achieve this is to make it
-free software which everyone can redistribute and change under these terms.
+```bash
+cmake -B build
+cmake --build build --config Release
+```
 
-  To do so, attach the following notices to the program.  It is safest
-to attach them to the start of each source file to most effectively
-convey the exclusion of warranty; and each file should have at least
-the "copyright" line and a pointer to where the full notice is found.
+The FPGA engine (POSIX sockets) is not built on Windows.
 
-    <one line to give the program's name and a brief idea of what it does.>
-    Copyright (C) <year>  <name of author>
+---
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+## Usage
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+### Command line options
 
-    You should have received a copy of the GNU General Public License along
-    with this program; if not, write to the Free Software Foundation, Inc.,
-    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+```
+Usage: mandelbrot [options]
 
-Also add information on how to contact you by electronic and paper mail.
+Display options:
+  -w, --width  <px>          window / image width              (default: 1200)
+  -h, --height <px>          window / image height             (default: 800)
+  -i, --iters  <n>           maximum number of iterations      (default: 256, max: 32768)
+  -e, --engine <name|id>     computation engine (see --list)   (default: first one)
+  -c, --colormap <name|id>   color palette (see --list)        (default: first one)
+  -x, --offset-x <real>      real part of the image center     (default: -0.7)
+  -y, --offset-y <real>      imaginary part of the image center (default: 0.0)
+  -z, --zoom <real>          size of one pixel in the complex plane (default: 0.004)
+  -d, --dot                  draw a marker at the center of the image
 
-If the program is interactive, make it output a short notice like this
-when it starts in an interactive mode:
+Batch options:
+  -o, --output <file>        render a single image (.png, .ppm, .bmp) and exit
+  -b, --benchmark            benchmark every available engine and exit
+  -n, --runs <n>             number of runs per engine in benchmark mode (default: 2)
+  -l, --list                 list the available engines and color palettes
+      --help                 display this help
+```
 
-    Gnomovision version 69, Copyright (C) year name of author
-    Gnomovision comes with ABSOLUTELY NO WARRANTY; for details type `show w'.
-    This is free software, and you are welcome to redistribute it
-    under certain conditions; type `show c' for details.
+Engines and palettes can be given by name (case insensitive) or by index, as
+printed by `--list`.
 
-The hypothetical commands `show w' and `show c' should show the appropriate
-parts of the General Public License.  Of course, the commands you use may
-be called something other than `show w' and `show c'; they could even be
-mouse-clicks or menu items--whatever suits your program.
+In benchmark mode (`-b`) the default image is 3840×2160 on a fixed, demanding
+view; `-w/-h` and `-x/-y/-z` override these defaults.
 
-You should also get your employer (if you work as a programmer) or your
-school, if any, to sign a "copyright disclaimer" for the program, if
-necessary.  Here is a sample; alter the names:
+### Keyboard and mouse
 
-  Yoyodyne, Inc., hereby disclaims all copyright interest in the program
-  `Gnomovision' (which makes passes at compilers) written by James Hacker.
+| Input | Action |
+|---|---|
+| Mouse wheel | Zoom in / out, keeping the point under the cursor fixed |
+| Left click | Center the view on the cursor |
+| `A` / `Z` | Zoom in / zoom out |
+| `O` / `P` | Halve / double the maximum number of iterations |
+| `↑` / `↓` | Previous / next computation engine |
+| `←` / `→` | Previous / next color palette |
+| `R` | Reset the view |
+| `C` | Toggle the central marker |
+| `I` | Print the current coordinates **and the command line that reproduces the view** |
+| `T` | Toggle printing the rendering time of each frame |
+| `B` | Benchmark the current engine on 64 frames |
+| `S` | Save a screenshot (`mandelbrot-YYYYMMDD-HHMMSS.png`) |
+| `H` | Print the key bindings |
+| `Esc` | Quit |
 
-  <signature of Ty Coon>, 1 April 1989
-  Ty Coon, President of Vice
+The window title shows the current engine, palette, number of iterations and
+rendering time.
 
-This General Public License does not permit incorporating your program into
-proprietary programs.  If your program is a subroutine library, you may
-consider it more useful to permit linking proprietary applications with the
-library.  If this is what you want to do, use the GNU Lesser General
-Public License instead of this License.
+### Examples
+
+```bash
+# Explore with the Metal GPU engine and a colorful palette
+./build/mandelbrot -e SP_METAL -c SMOOTH
+
+# Full-HD, 1024 iterations, seahorse valley
+./build/mandelbrot -w 1920 -h 1080 -i 1024 -x -0.7453 -y 0.1127 -z 1e-5 -c HSV_LOOP
+
+# Headless rendering of a deep zoom (no window needed)
+./build/mandelbrot -e DF_METAL -x -0.743643887037151 -y 0.131825904205330 \
+                   -z 4e-10 -i 3000 -c SMOOTH_LOOP -o deep.png
+
+# Benchmark every engine, 3 runs each
+./build/mandelbrot -b -n 3
+
+# Benchmark at a smaller resolution
+./build/mandelbrot -b -w 1920 -h 1080
+```
+
+The screenshots of this page were produced with:
+
+```bash
+./build/mandelbrot -w 960 -h 640 -e DF_METAL -i 512  -c SMOOTH -o overview.png
+./build/mandelbrot -w 960 -h 640 -e DF_METAL -i 1024 -c HSV_LOOP       -x -0.7453 -y 0.1127 -z 1.0e-5 -o seahorse-valley.png
+./build/mandelbrot -w 960 -h 640 -e DF_METAL -i 1024 -c SMOOTH_SHIFTED -x 0.2925  -y 0.0149 -z 1.2e-5 -o elephant-valley.png
+./build/mandelbrot -w 960 -h 640 -e DF_METAL -i 2048 -c ColorSetCandy  -x -1.7497219817 -y 0 -z 2e-9 -o minibrot.png
+```
+
+---
+
+## Computation engines
+
+Engine names follow the pattern `<format>_<target>[_OMP][_uN]`:
+
+| Prefix | Arithmetic |
+|---|---|
+| `SP` | single precision (`float`) |
+| `DP` | double precision (`double`) |
+| `DF` | "float-float": double precision emulated with two `float` |
+| `QP` | quad precision (`long double`, 80-bit on x86, 64-bit on ARM) |
+| `FP_Qm_n` | fixed point (m-bit integers with n fractional bits) |
+| `JU_*`, `DP_x86_J2`…`J10` | Julia sets (one constant *c* per engine) |
+| `DP_x86_BS` | Burning Ship fractal |
+
+| Suffix | Meaning |
+|---|---|
+| `_x86` or none | portable scalar C++ |
+| `SSE4`, `AVX2`, `AVX512`, `NEON` | SIMD intrinsics (or [VCL](https://github.com/vectorclass/version2), `_vc`) |
+| `_OMP` | multi-threaded with OpenMP |
+| `_u2`, `_u4` | loop unrolled 2× / 4× to hide the latency of the FMA units |
+| `METAL`, `CUDA` | GPU |
+
+At startup the program instantiates every engine, discards the ones not supported
+by the current machine (printed in red) and lists the available ones (in green).
+
+### GPU engines: Metal and CUDA
+
+**Metal** (`src/Convergence/metal/`) is written in C++ only, through Apple's
+header-only *metal-cpp* bindings — no Objective-C:
+
+- `MetalEngine` is the common base class: it owns the shared `MTL::Device` and
+  command queue, compiles the kernel and manages a unified-memory output buffer
+  (re-allocated when the image size changes).
+- The kernel source `mandelbrot.metal` is embedded into the executable by CMake
+  and compiled at run time with `MTL::Device::newLibrary(source, …)`.
+- `SP_METAL` computes in `float` (fast-math enabled).
+- `DF_METAL` computes in *float-float* arithmetic (Dekker / Knuth error-free
+  transformations, ~48-bit mantissa). Apple GPUs have no hardware `double`; this
+  engine keeps the image sharp at zoom levels where `float` is long gone, at
+  ~3× the cost of `SP_METAL`. It is compiled with fast-math **disabled**, which
+  the error-free transformations require.
+
+<p align="center">
+  <img src="docs/screenshots/deep-zoom-sp-metal.png" width="40%" alt="SP_METAL at zoom 4e-10"/>
+  <img src="docs/screenshots/deep-zoom-df-metal.png" width="40%" alt="DF_METAL at zoom 4e-10"/>
+  <br/>
+  <em>Same view (pixel size 4·10⁻¹⁰): <code>SP_METAL</code> (left) has run out of precision,
+  <code>DF_METAL</code> (right) still renders the details.</em>
+</p>
+
+**CUDA** (`src/Convergence/cuda/`):
+
+- `CudaEngine` is the common base class (device buffer management, error
+  checking, detection of a CUDA device at startup).
+- `mandelbrot_kernels.cu` holds a single templated kernel instantiated for
+  `float` (`SP_CUDA`) and `double` (`DP_CUDA`), launched on 16×16 thread blocks.
+- The engines themselves (`SP_cuda.cpp`, `DP_cuda.cpp`) are plain C++ files and
+  only call the launchers declared in `mandelbrot_kernels.hpp`.
+
+Note that consumer NVIDIA GPUs execute `double` 32 to 64 times slower than
+`float`; `DP_CUDA` is mostly interesting on data-center GPUs.
+
+---
+
+## Performance
+
+`./build/mandelbrot -b -n 3` — 3840×2160 pixels, 256 iterations, average time per
+image. Apple M5 Max, Apple Clang, macOS:
+
+| Engine | Format | SIMD | OpenMP | Time |
+|---|---:|---:|---:|---:|
+| SP | float | — | — | 2 803 ms |
+| SP_OMP | float | — | ✓ | 429 ms |
+| SP_NEON | float | NEON | — | 906 ms |
+| SP_NEON_OMP | float | NEON | ✓ | 71.2 ms |
+| **SP_METAL** | float | GPU | — | **4.6 ms** |
+| **DF_METAL** | df64 | GPU | — | **13.9 ms** |
+| DP_x86 | double | — | — | 3 022 ms |
+| DP_x86_OMP | double | — | ✓ | 321 ms |
+| DP_NEON | double | NEON | — | 1 664 ms |
+| DP_NEON_OMP | double | NEON | ✓ | 143 ms |
+| QP_OMP | quad | — | ✓ | 391 ms |
+| FP_Q32_27_x86 | fixed | — | — | 3 163 ms |
+
+Times include copying the iteration counts back to the host, but not the
+colorization. Older measurements are kept in [`perfs/README.md`](perfs/README.md).
+
+---
+
+## Project layout
+
+```
+CMakeLists.txt
+src/
+├── main.cpp                    command line parsing, event loop
+├── Mandelbrot.{hpp,cpp}        glue between engines, palettes and the image
+├── Display/Window.{hpp,cpp}    GLFW + OpenGL window (optional)
+├── Utils/Image.{hpp,cpp}       RGBA image + PNG/PPM/BMP writers (no dependency)
+├── Color/                      color palettes (ColorMap and its subclasses)
+│   └── library/                palette registry
+├── Convergence/
+│   ├── Convergence.{hpp,cpp}   base class of all engines
+│   ├── library/                engine registry (ConvergenceLibrary)
+│   ├── mandelbrot/<format>/<target>/{mono,multi}/   CPU / GPU engines
+│   ├── julia/, others/         Julia sets, Burning Ship and other variants
+│   ├── metal/                  MetalEngine, metal-cpp, mandelbrot.metal
+│   └── cuda/                   CudaEngine, CUDA kernels
+└── vectclass/                  Agner Fog's Vector Class Library (VCL)
+docs/screenshots/               images of this README
+```
+
+The engines write the **iteration count of each pixel** into a `float` buffer;
+the selected `ColorMap` then turns it into colors. This separation lets any
+engine be combined with any palette, and keeps the GPU and SIMD code free of
+any graphics dependency.
+
+---
+
+## Adding a new engine
+
+1. Create a class deriving from `Convergence` (or `MetalEngine` / `CudaEngine`)
+   and implement:
+
+   ```cpp
+   void updateImage(const long double zoom, const long double offsetX,
+                    const long double offsetY, const int IMAGE_WIDTH,
+                    const int IMAGE_HEIGHT, float* ptr) override;
+   bool is_valid() override;   // false => engine removed at startup
+   ```
+
+   `(offsetX, offsetY)` is the center of the image and `zoom` the size of a
+   pixel; write `IMAGE_WIDTH × IMAGE_HEIGHT` iteration counts into `ptr`.
+2. Register it in `src/Convergence/library/ConvergenceLibrary.cpp`
+   (`list.push_back(new MyEngine(nullptr, 255));`), guarded by the relevant
+   `#if defined(__AVX2__)`, `_ENABLE_METAL_`, `_ENABLE_CUDA_`… macro.
+3. Re-run CMake: `.cpp` files are picked up automatically, `.cu` files from
+   `src/Convergence/cuda/`.
+
+---
+
+## License
+
+Distributed under the terms of the GNU General Public License v2 — see
+[`LICENSE`](LICENSE). The Vector Class Library (`src/vectclass`) and metal-cpp
+(`src/Convergence/metal/Metal.hpp`) keep their own licenses (Apache 2.0).

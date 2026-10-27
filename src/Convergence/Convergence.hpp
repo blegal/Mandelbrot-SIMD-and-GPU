@@ -25,7 +25,7 @@
 #ifndef CONVERGENCE_H_
 #define CONVERGENCE_H_
 
-#include <SFML/Graphics.hpp>
+#include "Utils/Image.hpp"
 #include "../Color/ColorMap.hpp"
 
 class Convergence {

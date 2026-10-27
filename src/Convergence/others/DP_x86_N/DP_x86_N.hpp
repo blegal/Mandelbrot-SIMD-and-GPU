@@ -25,7 +25,7 @@
 #ifndef _DP_x86_N_
 #define _DP_x86_N_
 
-#include <SFML/Graphics.hpp>
+#include "Utils/Image.hpp"
 #include <array>
 #include <vector>
 #include <thread>

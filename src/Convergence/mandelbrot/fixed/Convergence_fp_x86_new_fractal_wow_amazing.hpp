@@ -25,7 +25,7 @@
 #ifndef _Convergence_fp_x86_nfwa_
 #define _Convergence_fp_x86_nfwa_
 
-#include <SFML/Graphics.hpp>
+#include "Utils/Image.hpp"
 #include "../../Convergence.hpp"
 #include "fixed_point.hpp"
 
@@ -44,7 +44,7 @@ public:
   ~Convergence_fp_x86_nfwa() {
   }
 
-  virtual void updateImage(const double d_zoom, const double d_offsetX, const double d_offsetY, const int IMAGE_WIDTH, const int IMAGE_HEIGHT, sf::Image& image) {
+  virtual void updateImage(const double d_zoom, const double d_offsetX, const double d_offsetY, const int IMAGE_WIDTH, const int IMAGE_HEIGHT, gfx::Image& image) {
     for (int y = 0; y < IMAGE_HEIGHT; y++) {
 
       fi32_t offsetX = double_to_fi32(d_offsetX, FI_32_28);

@@ -1,6 +1,30 @@
-#if defined(_ENABLE_CUDA_) || defined(__NVCC__) || defined(__CUDACC__)
+/*
+ *  Copyright (c) 2026-... Bertrand LE GAL
+ *
+ *  This software is provided 'as-is', without any express or
+ *  implied warranty. In no event will the authors be held
+ *  liable for any damages arising from the use of this software.
+ *
+ *  Permission is granted to anyone to use this software for any purpose,
+ *  including commercial applications, and to alter it and redistribute
+ *  it freely, subject to the following restrictions:
+ *
+ *  1. The origin of this software must not be misrepresented;
+ *  you must not claim that you wrote the original software.
+ *  If you use this software in a product, an acknowledgment
+ *  in the product documentation would be appreciated but
+ *  is not required.
+ *
+ *  2. Altered source versions must be plainly marked as such,
+ *  and must not be misrepresented as being the original software.
+ *
+ *  3. This notice may not be removed or altered from any
+ *  source distribution.
+ *
+ */
 #ifndef _DP_cuda_
 #define _DP_cuda_
+#if defined(_ENABLE_CUDA_)
 /*
  *
  *
@@ -8,7 +32,7 @@
  *
  *
  */
-#include "Convergence/Convergence.hpp"
+#include "Convergence/cuda/CudaEngine.hpp"
 /*
  *
  *
@@ -16,7 +40,7 @@
  *
  *
  */
-class DP_cuda : public Convergence {
+class DP_cuda : public CudaEngine {
 public:
     DP_cuda();
 
@@ -25,22 +49,6 @@ public:
     ~DP_cuda();
 
     virtual void updateImage(const long double _zoom, const long double _offsetX, const long double _offsetY, const int IMAGE_WIDTH, const int IMAGE_HEIGHT, float* ptr);
-
-    virtual bool is_valid();
-
-private:
-    //
-    // Buffers to hold data.
-    //
-    int32_t* gpu_mBuffer;
-
-    int32_t* host_mBuffer;
-    double   host_mZoom;
-    double   host_mOffsetX;
-    double   host_mOffsetY;
-    int32_t  host_mWidth;
-    int32_t  host_mHeight;
-    int32_t  host_mIters;
 };
 #endif
 #endif

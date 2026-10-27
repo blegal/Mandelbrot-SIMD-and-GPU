@@ -23,6 +23,12 @@
  *
  */
 #include "ColorLibrary.hpp"
+#include <cstdlib>
+#if defined(_MSC_VER)
+    #define strcasecmp _stricmp
+#else
+    #include <strings.h>
+#endif
 
 
 ColorLibrary::ColorLibrary()
@@ -62,8 +68,30 @@ ColorLibrary::~ColorLibrary()
 
 ColorMap* ColorLibrary::get(std::string name)
 {
-    counter = indx[name];
+    const int32_t num = find( name );
+    counter = (num < 0) ? 0 : num;
     return get();
+}
+
+
+int32_t ColorLibrary::find(const std::string name)
+{
+    for(uint32_t i = 0; i < list.size(); i++)
+    {
+        if( strcasecmp(list[i]->name().c_str(), name.c_str()) == 0 )
+            return i;
+    }
+    char* end;
+    const long num = strtol(name.c_str(), &end, 10);
+    if( (*end == '\0') && (end != name.c_str()) && (num >= 0) && (num < (long)list.size()) )
+        return num;
+    return -1;
+}
+
+
+int32_t ColorLibrary::size()
+{
+    return list.size();
 }
 
 
@@ -93,4 +121,11 @@ void ColorLibrary::previous()
     counter = (counter + list.size() - 1) % list.size();
     //printf("COUNTER %d / %lu\n", counter, list.size());
     //return get();
+}
+
+
+void ColorLibrary::listAllModules()
+{
+    for(uint32_t i = 0; i < list.size(); i += 1)
+        printf("%2d : %s\n", i, list[i]->name().c_str());
 }

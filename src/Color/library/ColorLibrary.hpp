@@ -65,9 +65,15 @@ public:
     ColorMap* get(int num);
     ColorMap* get();
 
+    int32_t find(const std::string name); // -1 si la palette n'existe pas
+
+    int32_t size();
+
     void next();
 
     void previous();
+
+    void listAllModules();
 
 };
 

@@ -25,7 +25,7 @@
 #ifndef _FP_18b_x86_
 #define _FP_18b_x86_
 
-#include <SFML/Graphics.hpp>
+#include "Utils/Image.hpp"
 
 #include "Convergence/Convergence.hpp"
 #include "Convergence/fixed/fixed_point.hpp"

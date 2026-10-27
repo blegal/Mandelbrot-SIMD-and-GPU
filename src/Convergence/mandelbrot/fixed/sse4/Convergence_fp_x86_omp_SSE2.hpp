@@ -151,7 +151,7 @@ public:
     }
 #endif
 
-    virtual void updateImage(const long double d_zoom, const long double d_offsetX, const long double d_offsetY, const int IMAGE_WIDTH, const int IMAGE_HEIGHT, sf::Image& image) {
+    virtual void updateImage(const long double d_zoom, const long double d_offsetX, const long double d_offsetY, const int IMAGE_WIDTH, const int IMAGE_HEIGHT, gfx::Image& image) {
 #if defined(__SSE4_1__)
         const __m128i V_4_SHIFTED = _mm_set1_epi32(4 << FI_32_25);
         const __m128i V_4 = _mm_set1_epi32(4);

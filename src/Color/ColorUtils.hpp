@@ -28,13 +28,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
-#include <SFML/Graphics.hpp>
+#include "Utils/Image.hpp"
 
 using namespace std;
 
 class ColorUtils {
 public:
-	static sf::Color HSVToRGB(int h, int s, int v) {
+	static gfx::Color HSVToRGB(int h, int s, int v) {
 		int r, g, b;
 	  unsigned char reg, rem, p, q, t;
 	  if (s == 0) {
@@ -70,7 +70,14 @@ public:
 	      break;
 	    }
 	  }
-	  return sf::Color(r, g, b);
+	  return gfx::Color(r, g, b);
+	}
+
+	static gfx::Color Lerp(const gfx::Color& a, const gfx::Color& b, const float t) {
+	  return gfx::Color(
+	      (uint8_t)(a.r + (b.r - a.r) * t),
+	      (uint8_t)(a.g + (b.g - a.g) * t),
+	      (uint8_t)(a.b + (b.b - a.b) * t));
 	}
 };
 
